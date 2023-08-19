@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
-	//"net"
 	"encoding/json"
 
 	"os"
@@ -30,7 +30,7 @@ type SystemInfo struct {
 }
 
 // global var to store update values
-var g_systemInfo []byte
+var g_systemInfo SystemInfo
 
 // get raspberry serial nuber , can act as UNIQUE key
 func getRaspberryPiHWID() string {
@@ -113,77 +113,88 @@ func getInternalTemperature() (string, error) {
 }
 
 // to store values into struct
-func startScrapingAndSending() {
-	for {
-		// Scrape /proc/stat or gather your data here
-		currentTime := time.Now()
+func startScrapingAndSending() SystemInfo {
 
-		cpuUserUsage, err := calculateCPUUsage("user")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
+	// Scrape /proc/stat or gather your data here
+	currentTime := time.Now()
 
-		cpuIdle, err := calculateCPUUsage("idle")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
-
-		memTotal, err := getMemoryValue("total")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
-
-		memFree, err := getMemoryValue("free")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
-
-		publicIP, err := getPublicIPAddress()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		internalTemp, err := getInternalTemperature()
-		if err != nil {
-			log.Fatal(err)
-		}
-		rpiTimeStamp := currentTime.Format("2006-01-02 15:04:05")
-
-		// Create a struct to hold the data
-		systemInfo := SystemInfo{
-			HardwareID:  getRaspberryPiHWID(),
-			CPUuserLoad: cpuUserUsage,
-			CPUidle:     cpuIdle,
-			TotalMemory: int64(memTotal),
-			FreeMemory:  int64(memFree),
-			IP:          publicIP,
-			Temperature: internalTemp,
-			TimeStamp:   rpiTimeStamp,
-		}
-
-		// Convert the struct to JSON
-		jsonData, err := json.Marshal(systemInfo)
-		if err != nil {
-			fmt.Println("Error marshaling JSON:", err)
-			continue
-		}
-		g_systemInfo = jsonData
-		fmt.Println(string(jsonData))
-
-		// Wait for some time before the next iteration
-		time.Sleep(time.Second * 10) // Adjust the interval as needed
+	cpuUserUsage, err := calculateCPUUsage("user")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 	}
+
+	cpuIdle, err := calculateCPUUsage("idle")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+	}
+
+	memTotal, err := getMemoryValue("total")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+	}
+
+	memFree, err := getMemoryValue("free")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+	}
+
+	publicIP, err := getPublicIPAddress()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	internalTemp, err := getInternalTemperature()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rpiTimeStamp := currentTime.Format("2006-01-02 15:04:05")
+
+	// Create a struct to hold the data
+	systemInfo := SystemInfo{
+		HardwareID:  getRaspberryPiHWID(),
+		CPUuserLoad: cpuUserUsage,
+		CPUidle:     cpuIdle,
+		TotalMemory: int64(memTotal),
+		FreeMemory:  int64(memFree),
+		IP:          publicIP,
+		Temperature: internalTemp,
+		TimeStamp:   rpiTimeStamp,
+	}
+
+	return systemInfo
+
 }
-func serveSystemInfo(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(g_systemInfo)
+func sendCPUInfoToServer(serverURL string, sysinfo SystemInfo) error {
+	// Convert the struct to JSON
+	jsonData, err := json.Marshal(g_systemInfo)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+	}
+
+	resp, err := http.Post(serverURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	log.Println("Response Status:", resp.Status)
+	return nil
 }
 
 func main() {
 
-	go startScrapingAndSending() // to update values at set interval
+	serverURL := "http://192.168.1.3:8080/rpi"
+	for {
+		g_systemInfo = startScrapingAndSending()
+		sendErr := sendCPUInfoToServer(serverURL, g_systemInfo)
+		if sendErr != nil {
+			fmt.Println("Error sending CPU info:", sendErr)
+			return
+		}
 
-	http.HandleFunc("/send-json", serveSystemInfo)
-	http.ListenAndServe(":8080", nil)
+		fmt.Println("CPU info sent to server")
+
+		time.Sleep(time.Second * 10)
+	}
 
 }
