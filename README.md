@@ -25,9 +25,9 @@ GOARM=6 GOARCH=arm GOOS=linux go build rpi_telemetery/client/rpi4b.go
 #### step3: transfer build file to your raspy , eg: use scp if it's on same network 
 
 ```
-scp tcpC <username>@<ip address>:<path to save file>
+scp tcpC <username>@<ip address>:<path to  save file on raspberry >
 ```
-#### step4: run file 
+#### step4: run file on raspberry
 ```
 <path to file>/rpi4b
 ```
@@ -37,4 +37,5 @@ scp tcpC <username>@<ip address>:<path to save file>
 go run main.go
 ```
 
-__NOTE__ : make sure postgres is set up for , refer Postgres.MD 
+__NOTE__ : make sure postgres is set up properly and in connecton.go right credentials and network info is present to make connection to 
+database , refer Postgres.MD 
