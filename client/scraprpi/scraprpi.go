@@ -111,6 +111,7 @@ func StartScraping() SystemInfo {
 
 	// Scrape /proc/stat or gather your data here
 	currentTime := time.Now()
+	rpiTimeStamp := currentTime.Format("2006-01-02 15:04:05")
 
 	cpuUserUsage, err := CalculateCPUUsage("user")
 	if err != nil {
@@ -141,7 +142,6 @@ func StartScraping() SystemInfo {
 	if err != nil {
 		log.Fatal(err)
 	}
-	rpiTimeStamp := currentTime.Format("2006-01-02 15:04:05")
 
 	// Create a struct to hold the data
 	systemInfo := SystemInfo{

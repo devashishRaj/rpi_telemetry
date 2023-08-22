@@ -9,7 +9,6 @@ import (
 
 	//"time"
 
-	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -22,7 +21,7 @@ func InsertInDB(jsonData SystemInfo) error {
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
 		jsonData.HardwareID, jsonData.CPUuserLoad, jsonData.CPUidle,
 		jsonData.TotalMemory, jsonData.FreeMemory, jsonData.IP,
-		jsonData.Temperature, pq.QuoteLiteral(jsonData.TimeStamp))
+		jsonData.Temperature, jsonData.TimeStamp)
 
 	CheckError(err)
 	fmt.Println("Data inserted successfully!")

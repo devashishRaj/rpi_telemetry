@@ -18,6 +18,7 @@ func CheckError(err error) {
 }
 
 func main() {
+	// Get the current time
 	router := mux.NewRouter()
 	router.HandleFunc("/rpi", connect.ReceiveJSON).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", router))

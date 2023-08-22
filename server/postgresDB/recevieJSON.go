@@ -33,4 +33,5 @@ func ReceiveJSON(w http.ResponseWriter, r *http.Request) {
 	// UpdateDB in insert.go
 	DBerr := InsertInDB(jsonData)
 	CheckError(DBerr)
+	CloseDB()
 }
