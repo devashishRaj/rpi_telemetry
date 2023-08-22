@@ -15,6 +15,8 @@ const (
 	dbname   = "rospi"
 )
 
+var db *sql.DB
+
 func CheckError(err error) {
 	if err != nil {
 		panic(err)
@@ -29,6 +31,11 @@ func ConnectDB() *sql.DB {
 	// open database
 	db, err := sql.Open("postgres", psqlconn)
 	CheckError(err)
-	defer db.Close()
 	return db
+}
+func CloseDB() {
+	if db != nil {
+		db.Close()
+		fmt.Println("DataBase closed")
+	}
 }

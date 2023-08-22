@@ -32,7 +32,5 @@ func ReceiveJSON(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	// UpdateDB in insert.go
 	DBerr := InsertInDB(jsonData)
-	if DBerr != nil {
-		return
-	}
+	CheckError(DBerr)
 }
