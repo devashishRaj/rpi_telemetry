@@ -16,12 +16,13 @@ type SystemInfo struct {
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`
 	IP          string  `json:"IP"`
-	Temperature string  `json:"Temperature"`
+	Temperature float64 `json:"Temperature"`
 	TimeStamp   string  `json:"TimeStamp"`
 }
 
+var jsonData SystemInfo
+
 func ReceiveJSON(w http.ResponseWriter, r *http.Request) {
-	var jsonData SystemInfo
 	err := json.NewDecoder(r.Body).Decode(&jsonData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -13,8 +13,7 @@ import (
 )
 
 func InsertInDB(jsonData SystemInfo) error {
-
-	db := ConnectDB()
+	db = ConnectDB()
 	_, err := db.Exec(`
 	INSERT INTO telemetry.rpib (HardwareID, CPUuserLoad, CPUidle, TotalMemory, FreeMemory, IP, 
 								Temperature, TimeStamp)
@@ -25,5 +24,6 @@ func InsertInDB(jsonData SystemInfo) error {
 
 	CheckError(err)
 	fmt.Println("Data inserted successfully!")
+	AlertTemp()
 	return nil
 }
