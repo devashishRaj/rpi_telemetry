@@ -1,4 +1,4 @@
-module github.com/devashishRaj/rpi_telemetry
+module client
 
 go 1.21.0
 
