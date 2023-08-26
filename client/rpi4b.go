@@ -19,8 +19,6 @@ func main() {
 			return
 		}
 
-		fmt.Println("CPU info sent to server")
-
 		time.Sleep(time.Second * 10)
 	}
 

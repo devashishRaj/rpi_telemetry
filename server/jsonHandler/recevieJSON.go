@@ -18,16 +18,6 @@ func CheckError(err error) {
 func ReceiveJSON() {
 	var jsonData jsonStruct.SystemInfo
 
-	// err := json.NewDecoder(r.Body).Decode(&jsonData)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// 	return
-	// }
-
-	// fmt.Printf("Received Info: %+v\n", jsonData)
-	// w.WriteHeader(http.StatusOK)
-	// // UpdateDB in insert.go
-
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
