@@ -1,14 +1,7 @@
 package main
 
 import (
-	connect "server/postgresDB"
-
-	"log"
-	"net/http"
-
-	_ "github.com/lib/pq"
-
-	"github.com/gorilla/mux"
+	connect "server/jsonHandler"
 )
 
 func CheckError(err error) {
@@ -18,9 +11,10 @@ func CheckError(err error) {
 }
 
 func main() {
-	// Get the current time
-	router := mux.NewRouter()
-	router.HandleFunc("/rpi", connect.ReceiveJSON).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	
+	// router := mux.NewRouter()
+	// router.HandleFunc("/rpi", connect.ReceiveJSON).Methods("POST")
+	// log.Fatal(http.ListenAndServe(":8080", router))
+	connect.ReceiveJSON()
 
 }
