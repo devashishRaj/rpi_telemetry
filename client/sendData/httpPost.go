@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Response struct {
@@ -43,4 +44,19 @@ func SendSystemInfo(serverURL string, sysinfo scrapRpi.SystemInfo) error {
 	defer resp.Body.Close()
 
 	return nil
+}
+
+func SendInterval() {
+
+	serverURL := "http://192.168.1.3:8080/rpi"
+	for {
+		scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+		sendErr := SendSystemInfo(serverURL, scrapRpi.G_systemInfo)
+		if sendErr != nil {
+			fmt.Println("Error sending CPU info:", sendErr)
+			return
+		}
+
+		time.Sleep(time.Second * 10)
+	}
 }
