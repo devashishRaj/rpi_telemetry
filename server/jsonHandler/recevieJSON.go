@@ -3,8 +3,8 @@ package jsonHandler
 import (
 	"fmt"
 	"net/http"
-	jsonStruct "server/dataStruct"
-	jsonToDb "server/postgresDB"
+	dataStruct "server/dataStruct"
+	postgresDB "server/postgresDB"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func CheckError(err error) {
 }
 
 func ReceiveJSON() {
-	var jsonData jsonStruct.SystemInfo
+	var jsonData dataStruct.SystemInfo
 
 	gin.SetMode(gin.ReleaseMode)
 
@@ -30,9 +30,9 @@ func ReceiveJSON() {
 
 		fmt.Printf("Received Info: %+v\n", jsonData)
 		c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
-		DBerr := jsonToDb.InsertInDB(jsonData)
+		DBerr := postgresDB.InsertInDB(jsonData)
 		CheckError(DBerr)
-		jsonToDb.CloseDB()
+		postgresDB.CloseDB()
 	})
 
 	r.Run(":8080")

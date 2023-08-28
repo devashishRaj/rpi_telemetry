@@ -1,7 +1,7 @@
 package main
 
 import (
-	connect "server/jsonHandler"
+	jsonHandler "server/jsonHandler"
 )
 
 func CheckError(err error) {
@@ -11,10 +11,7 @@ func CheckError(err error) {
 }
 
 func main() {
-	
-	// router := mux.NewRouter()
-	// router.HandleFunc("/rpi", connect.ReceiveJSON).Methods("POST")
-	// log.Fatal(http.ListenAndServe(":8080", router))
-	connect.ReceiveJSON()
+
+	jsonHandler.ReceiveJSON()
 
 }

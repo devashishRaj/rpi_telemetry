@@ -3,10 +3,10 @@ package postgresDB
 import (
 	"fmt"
 	"log"
-	jsonStruct "server/dataStruct"
+	dataStruct "server/dataStruct"
 )
 
-func AlertTemp(jsonData jsonStruct.SystemInfo) {
+func AlertTemp(jsonData dataStruct.SystemInfo) {
 	// Set custom prefix and flags to differentiate alerts
 	log.SetPrefix("[ALERT] ")
 	//The log.SetFlags function is used to configure the log message format to include the date,

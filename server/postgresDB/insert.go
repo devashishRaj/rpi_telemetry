@@ -2,7 +2,7 @@ package postgresDB
 
 import (
 	//"bytes"
-	jsonStruct "server/dataStruct"
+	dataStruct "server/dataStruct"
 
 	"fmt"
 
@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func InsertInDB(jsonData jsonStruct.SystemInfo) error {
+func InsertInDB(jsonData dataStruct.SystemInfo) error {
 	db = ConnectDB()
 	_, err := db.Exec(`
 	INSERT INTO telemetry.rpib (HardwareID, CPUuserLoad, CPUidle, TotalMemory, FreeMemory, IP, 
