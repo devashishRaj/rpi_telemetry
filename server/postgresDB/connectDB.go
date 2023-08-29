@@ -15,12 +15,6 @@ const (
 
 var db *sql.DB
 
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func ConnectDB() *sql.DB {
 	// connection string
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -28,8 +22,13 @@ func ConnectDB() *sql.DB {
 
 	// open database
 	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	return db
+	if err != nil {
+
+		fmt.Println("error in ConnectDB")
+		panic(err)
+	} else {
+		return db
+	}
 }
 func CloseDB() {
 	if db != nil {

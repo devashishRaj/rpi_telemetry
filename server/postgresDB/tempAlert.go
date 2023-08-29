@@ -1,12 +1,13 @@
 package postgresDB
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	dataStruct "server/dataStruct"
 )
 
-func AlertTemp(jsonData dataStruct.SystemInfo) {
+func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 
 	// // Set custom prefix and flags to differentiate alerts
 	// log.SetPrefix("[ALERT] ")
@@ -18,32 +19,42 @@ func AlertTemp(jsonData dataStruct.SystemInfo) {
 
 	query :=
 		`
-			SELECT AVG(temperature) AS avg_temperature
-			FROM telemetry.rpib
-			WHERE timestamp >= NOW() - INTERVAL '60 seconds';
+		SELECT AVG(temperature) AS avg_temperature
+		FROM telemetry.rpi4b_metrics
+		WHERE hardwareID = $1
+		AND timestamp >= NOW() - INTERVAL '60 seconds';
 		`
-	var avgTemperature float64
-	err := db.QueryRow(query).Scan(&avgTemperature)
+	var avgTemperature sql.NullFloat64
+	err := db.QueryRow(query, jsonData.HardwareID).Scan(&avgTemperature)
 	if err != nil {
-		fmt.Println("Query error")
+
+		fmt.Println("calc query error in AvgTemp")
+		fmt.Println(err)
+
 	}
-	CheckError(err)
 
-	if avgTemperature > 44.5 {
-		db = ConnectDB()
-		_, err := db.Exec(`
-		INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, CPUidle, TotalMemory, 
-		FreeMemory,IP, Temperature, TimeStamp)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-			jsonData.HardwareID, jsonData.CPUuserLoad, jsonData.CPUidle,
-			jsonData.TotalMemory, jsonData.FreeMemory, jsonData.IP,
-			jsonData.Temperature, jsonData.TimeStamp)
+	if avgTemperature.Valid {
+		if avgTemperature.Float64 > 44.5 {
+			_, err := db.Exec(`
+			INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, CPUidle, TotalMemory, 
+			FreeMemory,IP, Temperature, TimeStamp)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+				jsonData.HardwareID, jsonData.CPUuserLoad, jsonData.CPUidle,
+				jsonData.TotalMemory, jsonData.FreeMemory, jsonData.IP,
+				jsonData.Temperature, jsonData.TimeStamp)
 
-		CheckError(err)
-		fmt.Println("Data inserted successfully!")
+			if err != nil {
 
-		log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
-			jsonData.HardwareID, avgTemperature)
+				fmt.Println("error in InsertInDB , isnertoin query")
+				fmt.Println(err)
+
+			} else {
+				fmt.Println("Data inserted successfully!")
+
+				log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
+					jsonData.HardwareID, avgTemperature.Float64)
+			}
+		}
 
 	}
 }

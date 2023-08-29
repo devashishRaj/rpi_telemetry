@@ -9,12 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func ReceiveJSON() {
 	var jsonData dataStruct.SystemInfo
 
@@ -26,13 +20,13 @@ func ReceiveJSON() {
 		if err := c.BindJSON(&jsonData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
-		}
+		} else {
 
-		fmt.Printf("Received Info: %+v\n", jsonData)
-		c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
-		DBerr := postgresDB.InsertInDB(jsonData)
-		CheckError(DBerr)
-		postgresDB.CloseDB()
+			fmt.Printf("Received Info: %+v\n", jsonData)
+			c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
+			postgresDB.CheckPrimaryKey(jsonData)
+			postgresDB.CloseDB()
+		}
 	})
 
 	r.Run(":8080")
