@@ -60,7 +60,7 @@ CREATE SCHEMA IF NOT EXISTS telemetry;
 ```
 
 step 8 :
-``
+```
 create table telemetry.devices( HardwareID VARCHAR(255)  , primary key(HardwareID) );
 
 

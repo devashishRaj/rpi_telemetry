@@ -10,7 +10,7 @@ import (
 var db *sql.DB
 
 func ReadConfig() {
-	viper.AddConfigPath("./.configs")
+	viper.AddConfigPath("./local/.configs")
 	viper.SetConfigName("config") // Register config file name (no extension)
 	viper.SetConfigType("json")   // Look for specific type
 	viper.ReadInConfig()
