@@ -1,0 +1,10 @@
+{
+    "postgresDB": {
+        "host": "localhost",
+        "port": "5432",
+        "user": "rospi",
+        "password": "rpitele",
+        "dbname": "rospi" ,
+        "sslmode": "disable"
+    }
+}

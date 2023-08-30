@@ -11,13 +11,11 @@ import (
 
 func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 	db = ConnectDB()
-	query :=
-		`
+	query := (`
 		SELECT EXISTS (SELECT hardwareid FROM telemetry.devices WHERE hardwareid = $1);
-		`
+		`)
 	var isPresent bool
 	err := db.QueryRow(query, jsonData.HardwareID).Scan(&isPresent)
-	fmt.Println(isPresent)
 	if err != nil {
 		fmt.Println("Query error in CheckPrimary")
 		fmt.Println(err)
@@ -40,6 +38,7 @@ func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 		fmt.Println("Query error in InsertHardWareID")
 
 	} else {
+
 		InsertInDB(jsonData, db)
 	}
 
