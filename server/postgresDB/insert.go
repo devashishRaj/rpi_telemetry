@@ -3,19 +3,31 @@ package postgresDB
 import (
 	"database/sql"
 	dataStruct "server/dataStruct"
+	datastruct "server/dataStruct"
 
 	"fmt"
 
 	_ "github.com/lib/pq"
 )
 
-func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
+func CheckPrimaryKey(jsonData datastruct.SystemInfo) {
 	db = ConnectDB()
 	query := (`
-		SELECT EXISTS (SELECT hardwareid FROM telemetry.devices WHERE hardwareid = $1);
+		SELECT EXISTS (SELECT hardwareid , privateIP ,  publicIP , hostname , ostype , totalmemory
+			  FROM telemetry.devices 
+			WHERE hardwareid = $1 AND
+			privateip = $2 AND
+			publicIP = $3 AND
+			hostname  = $4 AND 
+			ostype = $5 AND
+			totalmemory = $6);
 		`)
 	var isPresent bool
-	err := db.QueryRow(query, jsonData.HardwareID).Scan(&isPresent)
+	err := db.QueryRow(query, jsonData.HardwareID, jsonData.PrivateIP,
+		jsonData.PublicIP,
+		jsonData.Hostname, jsonData.OsType,
+		jsonData.TotalMemory).Scan(&isPresent)
+
 	if err != nil {
 		fmt.Println("Query error in CheckPrimary")
 		fmt.Println(err)
@@ -31,14 +43,16 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 
 func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	_, err := db.Exec(`
-	INSERT INTO telemetry.devices (HardwareID)
-	VALUES ($1)`, jsonData.HardwareID)
-	fmt.Println("New HardwareID inserted!")
+	INSERT INTO telemetry.devices (HardwareID , privateip , publicIP , hostname , ostype , totalmemory)
+	VALUES ($1, $2, $3, $4, $5 , $6)`,
+		jsonData.HardwareID, jsonData.PrivateIP, jsonData.PublicIP,
+		jsonData.Hostname, jsonData.OsType, jsonData.TotalMemory)
 	if err != nil {
-		fmt.Println("Query error in InsertHardWareID")
+		fmt.Println("Query error in Insert HardWareID")
+		fmt.Println(err)
 
 	} else {
-
+		fmt.Println("New HardwareID inserted!")
 		InsertInDB(jsonData, db)
 	}
 
@@ -46,11 +60,11 @@ func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 
 func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	_, err := db.Exec(`
-	INSERT INTO telemetry.rpi4b_metrics (HardwareID, CPUuserLoad, CPUidle, TotalMemory, FreeMemory, IP, 
+	INSERT INTO telemetry.rpi4b_metrics (HardwareID, CPUuserLoad,  MemoryUsage,  
 								Temperature, TimeStamp)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		jsonData.HardwareID, jsonData.CPUuserLoad, jsonData.CPUidle,
-		jsonData.TotalMemory, jsonData.FreeMemory, jsonData.IP,
+	VALUES ($1, $2, $3, $4, $5)`,
+		jsonData.HardwareID, jsonData.CPUuserLoad,
+		jsonData.TotalMemory-jsonData.FreeMemory,
 		jsonData.Temperature, jsonData.TimeStamp)
 	if err != nil {
 

@@ -1,9 +1,6 @@
 package scraprpi
 
 import (
-	"fmt"
-	"log"
-	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -23,12 +20,14 @@ func CheckError(err error) {
 type SystemInfo struct {
 	HardwareID  string  `json:"HardwareID"`
 	CPUuserLoad float64 `json:"CPUuserLoad"`
-	CPUidle     float64 `json:"CPUidle"`
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`
-	IP          string  `json:"IP"`
+	PrivateIP   string  `json:"privateIP"`
+	PublicIP    string  `json:"publicIP"`
 	Temperature float64 `json:"Temperature"`
 	TimeStamp   string  `json:"TimeStamp"`
+	Hostname    string  `json:"hostname"`
+	OsType      string  `json:"ostype"`
 }
 
 // global var to store update values
@@ -41,11 +40,20 @@ func GetRaspberryPiHWID() string {
 	CheckError(err)
 
 	rpiHWID := string(output)
+	// use this trim when you get cmd line prompt on same line as output
 	rpiHWID = strings.TrimRight(rpiHWID, "\u0000")
 	return rpiHWID
 }
+func Gethostnmae() string {
+	cmd := exec.Command("hostname")
+	output, err := cmd.Output()
+	CheckError(err)
 
-func CalculateCPUUsage(mode string) (float64, error) {
+	hostname := string(output)
+	return hostname
+}
+
+func CalculateCPUUsage(mode string) float64 {
 	before, err := cpu.Get()
 	CheckError(err)
 
@@ -59,38 +67,47 @@ func CalculateCPUUsage(mode string) (float64, error) {
 	switch mode {
 	case "user":
 		cpuUsr := (float64(after.User-before.User) / total * 100)
-		return cpuUsr, nil
+		return cpuUsr
 	case "idle":
 		cpuIdle := (float64(after.Idle-before.Idle) / total * 100)
-		return cpuIdle, nil
+		return cpuIdle
 	default:
-		return 0.0, fmt.Errorf("invalid mode: %s", mode)
+		return 0.0
 	}
 }
 
-func GetMemoryValue(mode string) (float64, error) {
+func GetMemoryValue(mode string) float64 {
 	memory, err := memory.Get()
 	CheckError(err)
 
 	switch mode {
 	case "total":
 		memTotal := float64(memory.Total) / 1000000
-		return memTotal, nil
+		return memTotal
 	case "free":
 		memFree := float64(memory.Free) / 1000000
-		return memFree, nil
+		return memFree
 	default:
-		return 0.0, fmt.Errorf("invalid mode: %s", mode)
+		return 0.0
 	}
 }
 
-func GetPublicIPAddress() (string, error) {
+func GetPrivateIP() string {
 	cmd := exec.Command("hostname", "-I")
 	output, err := cmd.Output()
 	CheckError(err)
 
 	ipAddress := strings.TrimSpace(string(output))
-	return ipAddress, nil
+	return ipAddress
+}
+
+func GetPublicIP() string {
+	cmd := exec.Command("dig", "+short myip.opendns.com @resolver1.opendns.com")
+	output, err := cmd.Output()
+	CheckError(err)
+
+	ipAddress := strings.TrimSpace(string(output))
+	return ipAddress
 }
 
 func GetInternalTemperature() float64 {
@@ -112,50 +129,31 @@ func GetInternalTemperature() float64 {
 	return numericValue
 }
 
+func getOStype() string {
+	cmd := exec.Command("lsb_release", "-ds")
+	output, err := cmd.Output()
+	CheckError(err)
+
+	return string(output)
+}
+
 // to store values into struct
 func StartScraping() SystemInfo {
 
-	// Scrape /proc/stat or gather your data here
 	currentTime := time.Now()
-	rpiTimeStamp := currentTime.Format("2006-01-02 15:04:05")
-
-	cpuUserUsage, err := CalculateCPUUsage("user")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-	}
-
-	cpuIdle, err := CalculateCPUUsage("idle")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-	}
-
-	memTotal, err := GetMemoryValue("total")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-	}
-
-	memFree, err := GetMemoryValue("free")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-	}
-
-	publicIP, err := GetPublicIPAddress()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	internalTemp := GetInternalTemperature()
 
 	// Create a struct to hold the data
 	systemInfo := SystemInfo{
 		HardwareID:  GetRaspberryPiHWID(),
-		CPUuserLoad: cpuUserUsage,
-		CPUidle:     cpuIdle,
-		TotalMemory: int64(memTotal),
-		FreeMemory:  int64(memFree),
-		IP:          publicIP,
-		Temperature: internalTemp,
-		TimeStamp:   rpiTimeStamp,
+		CPUuserLoad: CalculateCPUUsage("user"),
+		TotalMemory: int64(GetMemoryValue("total")),
+		FreeMemory:  int64(GetMemoryValue("free")),
+		PrivateIP:   GetPrivateIP(),
+		PublicIP:    GetPrivateIP(),
+		Temperature: GetInternalTemperature(),
+		TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
+		Hostname:    Gethostnmae(),
+		OsType:      getOStype(),
 	}
 
 	return systemInfo

@@ -61,27 +61,22 @@ CREATE SCHEMA IF NOT EXISTS telemetry;
 
 step 8 :
 ```
-create table telemetry.devices( HardwareID VARCHAR(255)  , primary key(HardwareID) );
+create table telemetry.devices( hardwareid VARCHAR(25) , PrivateIP varchar(25) , publicIP  varchar(25) , hostname  varchar(25) , ostype  
+varchar(25) , totalmemory bigint , primary key(HardwareID));
 
 
 CREATE TABLE telemetry.rpi4b_metrics (
-    HardwareID VARCHAR(255),
+    HardwareID VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    CPUidle DOUBLE PRECISION,
-    TotalMemory BIGINT,
-    FreeMemory BIGINT,
-    IP VARCHAR(255),
+    MemoryUsage BIGINT,
     Temperature real,
-    TimeStamp timestamp , constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
-
+    TimeStamp timestamp UNIQUE, constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
 
 CREATE TABLE telemetry.rpi_temp_alert (
-    HardwareID VARCHAR(255),
+    HardwareID VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    CPUidle DOUBLE PRECISION,
-    TotalMemory BIGINT,
-    FreeMemory BIGINT,
-    IP VARCHAR(255),
+    MemoryUse BIGINT,
+    privateIP VARCHAR(25),
     Temperature real,
     TimeStamp timestamp , constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
 

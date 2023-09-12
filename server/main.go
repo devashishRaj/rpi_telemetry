@@ -1,7 +1,7 @@
 package main
 
 import (
-	jsonHandler "server/jsonHandler"
+	"server/jsonHandler"
 )
 
 func CheckError(err error) {

@@ -3,10 +3,12 @@ package datastruct
 type SystemInfo struct {
 	HardwareID  string  `json:"HardwareID"`
 	CPUuserLoad float64 `json:"CPUuserLoad"`
-	CPUidle     float64 `json:"CPUidle"`
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`
-	IP          string  `json:"IP"`
+	PrivateIP   string  `json:"privateIP"`
+	PublicIP    string  `json:"publicIP"`
 	Temperature float64 `json:"Temperature"`
 	TimeStamp   string  `json:"TimeStamp"`
+	Hostname    string  `json:"hostname"`
+	OsType      string  `json:"ostype"`
 }

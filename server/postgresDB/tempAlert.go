@@ -36,11 +36,11 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	if avgTemperature.Valid {
 		if avgTemperature.Float64 > 44.5 {
 			_, err := db.Exec(`
-			INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, CPUidle, TotalMemory, 
-			FreeMemory,IP, Temperature, TimeStamp)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-				jsonData.HardwareID, jsonData.CPUuserLoad, jsonData.CPUidle,
-				jsonData.TotalMemory, jsonData.FreeMemory, jsonData.IP,
+			INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, MemoryUse , privateIP ,
+				Temperature, TimeStamp)
+			VALUES ($1, $2, $3, $4, $5, $6)`,
+				jsonData.HardwareID, jsonData.CPUuserLoad,
+				jsonData.TotalMemory-jsonData.FreeMemory, jsonData.PrivateIP,
 				jsonData.Temperature, jsonData.TimeStamp)
 
 			if err != nil {
