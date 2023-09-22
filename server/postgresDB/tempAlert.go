@@ -59,4 +59,5 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	} else {
 		fmt.Println("avg value is null")
 	}
+	CloseDB()
 }

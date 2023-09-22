@@ -40,6 +40,5 @@ func ConnectDB() *sql.DB {
 func CloseDB() {
 	if db != nil {
 		db.Close()
-		fmt.Println("DataBase closed")
 	}
 }

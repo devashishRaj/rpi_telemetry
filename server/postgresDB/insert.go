@@ -41,13 +41,12 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 		InsertInDB(jsonData, db)
 
 	} else {
-		CheckPrimaryKey(jsonData)
+		CheckPrimaryKey(jsonData, db)
 	}
 
 }
 
-func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
-	db = ConnectDB()
+func CheckPrimaryKey(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	query := (`
 		SELECT EXISTS (SELECT MacAddress , privateIP ,  publicIP , hostname , ostype , totalmemory
 			  FROM telemetry.devices 
@@ -116,4 +115,5 @@ func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 		fmt.Println("Data inserted successfully!")
 		AlertTemp(jsonData, db)
 	}
+	CloseDB()
 }

@@ -16,8 +16,7 @@ import (
 func CheckError(context string, err error) {
 	if err != nil {
 		fmt.Printf("Error: %s\n", context)
-		fmt.Println(err)
-		log.Fatalf("Error: %s\n%s", context, err)
+		log.Fatalln(err)
 	}
 }
 
