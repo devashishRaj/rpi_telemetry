@@ -4,12 +4,6 @@ Reference : https://semaphoreci.com/community/tutorials/building-and-testing-a-r
 
 Folder structure :
 ```
-rpi_telemetery
-|__client
-|  |__rpi4b.go
-|__server
-	|__main.go
-```
 #### step 1 : 
 ```
 git clone https://github.com/devashishRaj/rip_telemetry.git
@@ -17,25 +11,55 @@ git clone https://github.com/devashishRaj/rip_telemetry.git
 
 then cd into client folder:
 
-#### step2 : build executable file for raspberry pi :
+#### step2 : build executable , 
 ```
-GOARM=6 GOARCH=arm GOOS=linux go build rpi_telemetery/client/rpi4b.go
+make build-all 
 ```
 
 #### step3: transfer build file to your raspy , eg: use scp if it's on same network 
 
 ```
-scp tcpC <username>@<ip address>:<path to  save file on raspberry >
+scp <path to executable> <username>@<ip address>:<path to  save file on raspberry >
 ```
-#### step4: run file on raspberry
+#### step4: run file on raspberry , ssh or login into raspi
+
 ```
-<path to file>/rpi4b
+<path to file>/<file name>
 ```
 
-#### step 5 : run main.go on server side where database is setup
+#### step 5 : run main.go on server side where database is setup , cd into server folder , if you have air live relaoad for goalng 
+#### cd int server folder and type  " air "
+
+OR 
+
+__NOTE__ : make sure postgres is set up properly and viper config file is setup porperly for right credentials and network info is present to make connection to database , refer Postgres.MD and https://github.com/spf13/viper
+
+#### viper guide 
+
+**cd into server folder** 
+
 ```
-go run main.go
+makedir -p local/.config
+
+```
+cd into config 
+
+```
+vim config.json
 ```
 
-__NOTE__ : make sure postgres is set up properly and in connecton.go right credentials and network info is present to make connection to 
-database , refer Postgres.MD 
+sample json format : 
+
+```
+{
+    "postgresDB": {
+        "host": "localhost",
+        "port": "5432",
+        "user": "xyz",
+        "password": "xyz",
+        "dbname": "xyz" ,
+        "sslmode": "disable"
+    }
+}
+
+```
