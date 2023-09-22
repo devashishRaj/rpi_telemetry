@@ -21,38 +21,38 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 		`
 		SELECT AVG(temperature) AS avg_temperature
 		FROM telemetry.rpi4b_metrics
-		WHERE hardwareID = $1
+		WHERE MacAddress = $1
 		AND timestamp >= NOW() - INTERVAL '60 seconds';
 		`
 	var avgTemperature sql.NullFloat64
-	err := db.QueryRow(query, jsonData.HardwareID).Scan(&avgTemperature)
+	err := db.QueryRow(query, jsonData.MacAddress).Scan(&avgTemperature)
 	if err != nil {
 
 		fmt.Println("calc query error in AvgTemp")
-		fmt.Println(err)
+		log.Fatalln(err)
 
 	}
 
 	if avgTemperature.Valid {
 		if avgTemperature.Float64 > 44 {
 			_, err := db.Exec(`
-			INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, MemoryUse , privateIP ,
-				Temperature, TimeStamp)
-			VALUES ($1, $2, $3, $4, $5, $6)`,
-				jsonData.HardwareID, jsonData.CPUuserLoad,
-				jsonData.TotalMemory-jsonData.FreeMemory, jsonData.PrivateIP,
-				jsonData.Temperature, jsonData.TimeStamp)
+			INSERT INTO telemetry.rpi_temp_alert (MacAddress, CPUuserLoad,  MemoryUsage,  
+				Temperature, TotalProcesses , TimeStamp)
+				VALUES ($1, $2, $3, $4, $5, $6)`,
+				jsonData.MacAddress, jsonData.CPUuserLoad,
+				jsonData.TotalMemory-jsonData.FreeMemory,
+				jsonData.Temperature, jsonData.ProcesN, jsonData.TimeStamp)
 
 			if err != nil {
 
 				fmt.Println("error in InsertInDB , isnertoin query")
-				fmt.Println(err)
+				log.Fatalln(err)
 
 			} else {
 				fmt.Println("Data inserted successfully!")
 
 				log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
-					jsonData.HardwareID, avgTemperature.Float64)
+					jsonData.MacAddress, avgTemperature.Float64)
 			}
 		}
 

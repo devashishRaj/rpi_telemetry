@@ -1,7 +1,7 @@
 package datastruct
 
 type SystemInfo struct {
-	HardwareID  string  `json:"HardwareID"`
+	MacAddress  string  `json:"MacAddress:"`
 	CPUuserLoad float64 `json:"CPUuserLoad"`
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`

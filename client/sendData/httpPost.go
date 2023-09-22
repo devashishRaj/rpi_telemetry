@@ -48,7 +48,7 @@ func SendSystemInfo(serverURL string, sysinfo scrapRpi.SystemInfo) error {
 
 func SendInterval() {
 
-	serverURL := "http://192.168.1.3:8080/rpi"
+	serverURL := "http://10.147.19.40:8080/rpi"
 	for {
 		scrapRpi.G_systemInfo = scrapRpi.StartScraping()
 		sendErr := SendSystemInfo(serverURL, scrapRpi.G_systemInfo)

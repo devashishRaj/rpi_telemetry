@@ -3,6 +3,7 @@ package postgresDB
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
@@ -30,10 +31,11 @@ func ConnectDB() *sql.DB {
 	if err != nil {
 
 		fmt.Println("error in ConnectDB")
-		panic(err)
+		log.Fatalln(err)
 	} else {
 		return db
 	}
+	return nil
 }
 func CloseDB() {
 	if db != nil {

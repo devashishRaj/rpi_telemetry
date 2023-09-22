@@ -46,7 +46,7 @@ docker exec -it postgresrpi bash
 step 6 : connect to particular database via a user :
 
 ```
-psql -d iot -U <username> -W
+psql -d <db name> -U <username> -W
 ```
 The above command includes three flags:
 
@@ -61,24 +61,26 @@ CREATE SCHEMA IF NOT EXISTS telemetry;
 
 step 8 :
 ```
-create table telemetry.devices( hardwareid VARCHAR(25) , PrivateIP varchar(25) , publicIP  varchar(25) , hostname  varchar(25) , ostype  
-varchar(25) , totalmemory bigint , primary key(HardwareID));
+create table telemetry.devices( MacAddress VARCHAR(25) , PrivateIP varchar(25) , publicIP  varchar(25) , hostname  varchar(25) , ostype  
+varchar(25) , totalmemory int , primary key(MacAddress));
 
 
 CREATE TABLE telemetry.rpi4b_metrics (
-    HardwareID VARCHAR(25),
+    MacAddress VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    MemoryUsage BIGINT,
+    MemoryUsage INT,
     Temperature real,
-    TimeStamp timestamp UNIQUE, constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
+    TotalProcesses INT,
+    TimeStamp timestamp UNIQUE, constraint fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress));
 
 CREATE TABLE telemetry.rpi_temp_alert (
-    HardwareID VARCHAR(25),
+    MacAddress VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    MemoryUse BIGINT,
+    MemoryUse INT,
     privateIP VARCHAR(25),
     Temperature real,
-    TimeStamp timestamp , constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
+    TotalProcesses INT ,
+    TimeStamp timestamp , constraint fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress));
 
 
 ```
@@ -89,6 +91,6 @@ some queries for grafana :
 select  telemetry.rpi4b_metrics.temperature , telemetry.rpi4b_metrics.timestamp as time  ,  telemetry.devices.privateip
 FROM telemetry.rpi4b_metrics
 FULL JOIN telemetry.devices
-ON telemetry.rpi4b_metrics.hardwareid = telemetry.devices.hardwareid ;
+ON telemetry.rpi4b_metrics.MacAddress = telemetry.devices.MacAddress ;
 
 ```

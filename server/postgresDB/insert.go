@@ -3,17 +3,55 @@ package postgresDB
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	dataStruct "server/dataStruct"
 
 	_ "github.com/lib/pq"
 )
 
+func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
+	db = ConnectDB()
+	query := (`
+		SELECT EXISTS (SELECT macaddress 
+			  FROM telemetry.devices 
+			WHERE  macaddress = $1 );
+		`)
+	var isPresent bool
+	err := db.QueryRow(query, jsonData.MacAddress).Scan(&isPresent)
+
+	if err != nil {
+		fmt.Println("Query error in CheckDevicesDB")
+		log.Fatalln(err)
+
+	}
+	fmt.Println("isPresent: ", isPresent)
+	if isPresent == false {
+		_, err := db.Exec(`
+		INSERT INTO telemetry.devices (MacAddress , privateIP ,  publicIP , hostname , 
+		ostype , totalmemory)
+		VALUES ($1, $2, $3, $4, $5, $6)`,
+			jsonData.MacAddress, jsonData.PrivateIP, jsonData.PublicIP,
+			jsonData.Hostname, jsonData.OsType, jsonData.TotalMemory)
+		if err != nil {
+			fmt.Println("Query error in CheckDevicesDB when  ")
+			log.Fatalln(err)
+
+		}
+		fmt.Println("New device inserted")
+		InsertInDB(jsonData, db)
+
+	} else {
+		CheckPrimaryKey(jsonData)
+	}
+
+}
+
 func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 	db = ConnectDB()
 	query := (`
-		SELECT EXISTS (SELECT hardwareid , privateIP ,  publicIP , hostname , ostype , totalmemory
+		SELECT EXISTS (SELECT MacAddress , privateIP ,  publicIP , hostname , ostype , totalmemory
 			  FROM telemetry.devices 
-			WHERE hardwareid = $1 AND
+			WHERE MacAddress = $1 AND
 			privateip = $2 AND
 			publicIP = $3 AND
 			hostname  = $4 AND 
@@ -21,39 +59,41 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 			totalmemory = $6);
 		`)
 	var isPresent bool
-	err := db.QueryRow(query, jsonData.HardwareID, jsonData.PrivateIP,
+	err := db.QueryRow(query, jsonData.MacAddress, jsonData.PrivateIP,
 		jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType,
 		jsonData.TotalMemory).Scan(&isPresent)
 
 	if err != nil {
 		fmt.Println("Query error in CheckPrimary")
-		fmt.Println(err)
+		log.Fatalln(err)
+	}
 
-	} else if isPresent {
+	if isPresent {
 		(InsertInDB(jsonData, db))
 
 	} else {
-		(insertHwID(jsonData, db))
+		(updateDeviceInfo(jsonData, db))
 	}
 
 }
 
-func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
+func updateDeviceInfo(jsonData dataStruct.SystemInfo, db *sql.DB) {
+
 	_, err := db.Exec(`
 	UPDATE telemetry.devices
 	SET privateip = $1, publicIP = $2, hostname = $3, ostype = $4, totalmemory = $5
-	WHERE HardwareID = $6`,
+	WHERE MacAddress = $6`,
 		jsonData.PrivateIP, jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType,
-		jsonData.TotalMemory, jsonData.HardwareID)
+		jsonData.TotalMemory, jsonData.MacAddress)
 
 	if err != nil {
-		fmt.Println("Query error in Insert HardWareID")
-		fmt.Println(err)
+		fmt.Println("Query error in Update device info")
+		log.Fatalln(err)
 
 	} else {
-		fmt.Println("New HardwareID inserted!")
+		fmt.Println("Device info updated")
 		InsertInDB(jsonData, db)
 	}
 
@@ -61,16 +101,16 @@ func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 
 func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	_, err := db.Exec(`
-	INSERT INTO telemetry.rpi4b_metrics (HardwareID, CPUuserLoad,  MemoryUsage,  
+	INSERT INTO telemetry.rpi4b_metrics (MacAddress, CPUuserLoad,  MemoryUsage,  
 								Temperature, TotalProcesses , TimeStamp)
 	VALUES ($1, $2, $3, $4, $5, $6)`,
-		jsonData.HardwareID, jsonData.CPUuserLoad,
+		jsonData.MacAddress, jsonData.CPUuserLoad,
 		jsonData.TotalMemory-jsonData.FreeMemory,
 		jsonData.Temperature, jsonData.ProcesN, jsonData.TimeStamp)
 	if err != nil {
 
 		fmt.Println("error in InsertInDB")
-		fmt.Println(err)
+		log.Fatalln(err)
 
 	} else {
 		fmt.Println("Data inserted successfully!")

@@ -12,7 +12,6 @@ import (
 
 func ReceiveJSON() {
 	var jsonData dataStruct.SystemInfo
-	log.Println("in json handler")
 
 	gin.SetMode(gin.ReleaseMode)
 
@@ -26,7 +25,7 @@ func ReceiveJSON() {
 
 			fmt.Printf("Received Info: %+v\n", jsonData)
 			c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
-			postgresDB.CheckPrimaryKey(jsonData)
+			postgresDB.CheckDevicesDB(jsonData)
 			postgresDB.CloseDB()
 		}
 	})

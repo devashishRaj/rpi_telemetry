@@ -2,6 +2,7 @@ package scraprpi
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -12,15 +13,16 @@ import (
 	"github.com/mackerelio/go-osstat/memory"
 )
 
-func CheckError(err error) {
+func CheckError(context string, err error) {
 	if err != nil {
+		fmt.Printf("Error: %s\n", context)
 		fmt.Println(err)
-		panic(err)
+		log.Fatalf("Error: %s\n%s", context, err)
 	}
 }
 
 type SystemInfo struct {
-	HardwareID  string  `json:"HardwareID"`
+	MacAddress  string  `json:"MacAddress:"`
 	CPUuserLoad float64 `json:"CPUuserLoad"`
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`
@@ -30,29 +32,30 @@ type SystemInfo struct {
 	TimeStamp   string  `json:"TimeStamp"`
 	Hostname    string  `json:"hostname"`
 	OsType      string  `json:"ostype"`
+	ProcesN     int64   `json:"nprocs"`
 }
 
 // global var to store update values
 var G_systemInfo SystemInfo
 
 // get raspberry serial nuber , can act as UNIQUE key
-func GetRaspberryPiHWID() string {
-
-	cmd := exec.Command("cat", "/sys/firmware/devicetree/base/serial-number")
+func GetmacAddr() string {
+	cmdStr := "ifconfig ztiv5bmes5 | grep 'ether' | awk '{print $2}'"
+	cmd := exec.Command("sh", "-c", cmdStr)
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("error in hwid", err)
 
-	rpiHWID := string(output)
+	HWID := string(output)
 	// use this trim when you get cmd line prompt on same line as output
-	rpiHWID = strings.TrimRight(rpiHWID, "\u0000")
-
-	return rpiHWID
+	HWID = strings.TrimRight(HWID, "\u0000")
+	HWID = strings.TrimSpace(string(HWID))
+	return HWID
 
 }
 func Gethostnmae() string {
 	cmd := exec.Command("hostname")
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("hostname", err)
 
 	hostname := strings.TrimSpace(string(output))
 	return hostname
@@ -60,12 +63,12 @@ func Gethostnmae() string {
 
 func CalculateCPUUsage(mode string) float64 {
 	before, err := cpu.Get()
-	CheckError(err)
+	CheckError("CPU ", err)
 
 	time.Sleep(time.Duration(1) * time.Second)
 
 	after, err := cpu.Get()
-	CheckError(err)
+	CheckError("cpu", err)
 
 	total := float64(after.Total - before.Total)
 
@@ -83,7 +86,7 @@ func CalculateCPUUsage(mode string) float64 {
 
 func GetMemoryValue(mode string) float64 {
 	memory, err := memory.Get()
-	CheckError(err)
+	CheckError("memory", err)
 
 	switch mode {
 	case "total":
@@ -98,10 +101,10 @@ func GetMemoryValue(mode string) float64 {
 }
 
 func GetPrivateIP() string {
-
-	cmd := exec.Command("hostname", "-I")
+	cmdStr := "ifconfig | grep -oP 'inet \\K[\\d.]+' | tail -1"
+	cmd := exec.Command("sh", "-c", cmdStr)
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("privateIP", err)
 
 	ipAddress := strings.TrimSpace(string(output))
 	return ipAddress
@@ -110,7 +113,7 @@ func GetPrivateIP() string {
 func GetPublicIP() string {
 	cmd := exec.Command("curl", "ifconfig.co")
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("publicIP", err)
 
 	pipAddress := strings.TrimSpace(string(output))
 	return pipAddress
@@ -119,7 +122,7 @@ func GetPublicIP() string {
 func GetInternalTemperature() float64 {
 	cmd := exec.Command("vcgencmd", "measure_temp")
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("temp", err)
 
 	temperature := strings.TrimSpace(string(output))
 	// Define the regular expression pattern
@@ -131,16 +134,32 @@ func GetInternalTemperature() float64 {
 	// Find the first match in the input string
 	match := regExp.FindString(temperature)
 	numericValue, err := strconv.ParseFloat(match, 64)
-	CheckError(err)
+	CheckError("temp string parse", err)
 	return numericValue
 }
 
 func getOStype() string {
 	cmd := exec.Command("lsb_release", "-ds")
 	output, err := cmd.Output()
-	CheckError(err)
+	CheckError("ostype", err)
 
 	return strings.TrimSpace(string(output))
+}
+
+func TotalProcesses() int64 {
+	cmdStr := "ps aux | wc -l"
+	cmd := exec.Command("sh", "-c", cmdStr)
+
+	// Capture the command output
+	output, err := cmd.Output()
+	CheckError("n processes", err)
+	trimmedOutput := strings.TrimSpace(string(output))
+	// Convert the output to an integer
+	count, err := strconv.ParseInt(trimmedOutput, 10, 64)
+	CheckError("n processes , string parse", err)
+
+	return count
+
 }
 
 // to store values into struct
@@ -150,7 +169,7 @@ func StartScraping() SystemInfo {
 
 	// Create a struct to hold the data
 	systemInfo := SystemInfo{
-		HardwareID:  GetRaspberryPiHWID(),
+		MacAddress:  GetmacAddr(),
 		CPUuserLoad: CalculateCPUUsage("user"),
 		TotalMemory: int64(GetMemoryValue("total")),
 		FreeMemory:  int64(GetMemoryValue("free")),
@@ -160,6 +179,7 @@ func StartScraping() SystemInfo {
 		TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
 		Hostname:    Gethostnmae(),
 		OsType:      getOStype(),
+		ProcesN:     TotalProcesses(),
 	}
 
 	return systemInfo
