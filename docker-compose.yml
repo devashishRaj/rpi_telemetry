@@ -1,0 +1,32 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: rospi
+      POSTGRES_USER: rospi
+      POSTGRES_PASSWORD: rpitele
+    ports:
+      - "5432:5432"
+    volumes:
+      - /Users/devashishraj/Desktop/postgresGO/teleDB:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgres
+      GF_DATABASE_NAME: rospi
+      GF_DATABASE_USER: rospi
+      GF_DATABASE_PASSWORD: rpitele
+    volumes:
+      - /Users/devashishraj/Desktop/postgresGO/grafanaVolm:/var/lib/grafana
+
+
+

@@ -2,15 +2,13 @@ package postgresDB
 
 import (
 	"database/sql"
-	dataStruct "server/dataStruct"
-	datastruct "server/dataStruct"
-
 	"fmt"
+	dataStruct "server/dataStruct"
 
 	_ "github.com/lib/pq"
 )
 
-func CheckPrimaryKey(jsonData datastruct.SystemInfo) {
+func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 	db = ConnectDB()
 	query := (`
 		SELECT EXISTS (SELECT hardwareid , privateIP ,  publicIP , hostname , ostype , totalmemory
@@ -43,10 +41,13 @@ func CheckPrimaryKey(jsonData datastruct.SystemInfo) {
 
 func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	_, err := db.Exec(`
-	INSERT INTO telemetry.devices (HardwareID , privateip , publicIP , hostname , ostype , totalmemory)
-	VALUES ($1, $2, $3, $4, $5 , $6)`,
-		jsonData.HardwareID, jsonData.PrivateIP, jsonData.PublicIP,
-		jsonData.Hostname, jsonData.OsType, jsonData.TotalMemory)
+	UPDATE telemetry.devices
+	SET privateip = $1, publicIP = $2, hostname = $3, ostype = $4, totalmemory = $5
+	WHERE HardwareID = $6`,
+		jsonData.PrivateIP, jsonData.PublicIP,
+		jsonData.Hostname, jsonData.OsType,
+		jsonData.TotalMemory, jsonData.HardwareID)
+
 	if err != nil {
 		fmt.Println("Query error in Insert HardWareID")
 		fmt.Println(err)
@@ -61,11 +62,11 @@ func insertHwID(jsonData dataStruct.SystemInfo, db *sql.DB) {
 func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	_, err := db.Exec(`
 	INSERT INTO telemetry.rpi4b_metrics (HardwareID, CPUuserLoad,  MemoryUsage,  
-								Temperature, TimeStamp)
-	VALUES ($1, $2, $3, $4, $5)`,
+								Temperature, TotalProcesses , TimeStamp)
+	VALUES ($1, $2, $3, $4, $5, $6)`,
 		jsonData.HardwareID, jsonData.CPUuserLoad,
 		jsonData.TotalMemory-jsonData.FreeMemory,
-		jsonData.Temperature, jsonData.TimeStamp)
+		jsonData.Temperature, jsonData.ProcesN, jsonData.TimeStamp)
 	if err != nil {
 
 		fmt.Println("error in InsertInDB")

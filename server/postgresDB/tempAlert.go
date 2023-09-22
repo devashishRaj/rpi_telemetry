@@ -34,7 +34,7 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	}
 
 	if avgTemperature.Valid {
-		if avgTemperature.Float64 > 44.5 {
+		if avgTemperature.Float64 > 44 {
 			_, err := db.Exec(`
 			INSERT INTO telemetry.rpi_temp_alert (HardwareID, CPUuserLoad, MemoryUse , privateIP ,
 				Temperature, TimeStamp)
@@ -56,5 +56,7 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 			}
 		}
 
+	} else {
+		fmt.Println("avg value is null")
 	}
 }

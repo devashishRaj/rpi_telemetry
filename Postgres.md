@@ -82,3 +82,13 @@ CREATE TABLE telemetry.rpi_temp_alert (
 
 
 ```
+
+some queries for grafana :
+
+```
+select  telemetry.rpi4b_metrics.temperature , telemetry.rpi4b_metrics.timestamp as time  ,  telemetry.devices.privateip
+FROM telemetry.rpi4b_metrics
+FULL JOIN telemetry.devices
+ON telemetry.rpi4b_metrics.hardwareid = telemetry.devices.hardwareid ;
+
+```

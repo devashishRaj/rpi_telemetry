@@ -2,6 +2,7 @@ package jsonHandler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	dataStruct "server/dataStruct"
 	postgresDB "server/postgresDB"
@@ -11,6 +12,7 @@ import (
 
 func ReceiveJSON() {
 	var jsonData dataStruct.SystemInfo
+	log.Println("in json handler")
 
 	gin.SetMode(gin.ReleaseMode)
 
@@ -29,5 +31,7 @@ func ReceiveJSON() {
 		}
 	})
 
-	r.Run(":8080")
+	err := r.Run(":8080")
+	log.Fatalln(err)
+
 }

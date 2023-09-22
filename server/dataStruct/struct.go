@@ -11,4 +11,5 @@ type SystemInfo struct {
 	TimeStamp   string  `json:"TimeStamp"`
 	Hostname    string  `json:"hostname"`
 	OsType      string  `json:"ostype"`
+	ProcesN     int64   `json:"nprocs"`
 }

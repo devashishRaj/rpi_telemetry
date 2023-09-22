@@ -1,6 +1,7 @@
 package scraprpi
 
 import (
+	"fmt"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 
 func CheckError(err error) {
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 }
@@ -35,6 +37,7 @@ var G_systemInfo SystemInfo
 
 // get raspberry serial nuber , can act as UNIQUE key
 func GetRaspberryPiHWID() string {
+
 	cmd := exec.Command("cat", "/sys/firmware/devicetree/base/serial-number")
 	output, err := cmd.Output()
 	CheckError(err)
@@ -42,14 +45,16 @@ func GetRaspberryPiHWID() string {
 	rpiHWID := string(output)
 	// use this trim when you get cmd line prompt on same line as output
 	rpiHWID = strings.TrimRight(rpiHWID, "\u0000")
+
 	return rpiHWID
+
 }
 func Gethostnmae() string {
 	cmd := exec.Command("hostname")
 	output, err := cmd.Output()
 	CheckError(err)
 
-	hostname := string(output)
+	hostname := strings.TrimSpace(string(output))
 	return hostname
 }
 
@@ -93,6 +98,7 @@ func GetMemoryValue(mode string) float64 {
 }
 
 func GetPrivateIP() string {
+
 	cmd := exec.Command("hostname", "-I")
 	output, err := cmd.Output()
 	CheckError(err)
@@ -102,12 +108,12 @@ func GetPrivateIP() string {
 }
 
 func GetPublicIP() string {
-	cmd := exec.Command("dig", "+short myip.opendns.com @resolver1.opendns.com")
+	cmd := exec.Command("curl", "ifconfig.co")
 	output, err := cmd.Output()
 	CheckError(err)
 
-	ipAddress := strings.TrimSpace(string(output))
-	return ipAddress
+	pipAddress := strings.TrimSpace(string(output))
+	return pipAddress
 }
 
 func GetInternalTemperature() float64 {
@@ -134,7 +140,7 @@ func getOStype() string {
 	output, err := cmd.Output()
 	CheckError(err)
 
-	return string(output)
+	return strings.TrimSpace(string(output))
 }
 
 // to store values into struct
@@ -149,7 +155,7 @@ func StartScraping() SystemInfo {
 		TotalMemory: int64(GetMemoryValue("total")),
 		FreeMemory:  int64(GetMemoryValue("free")),
 		PrivateIP:   GetPrivateIP(),
-		PublicIP:    GetPrivateIP(),
+		PublicIP:    GetPublicIP(),
 		Temperature: GetInternalTemperature(),
 		TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
 		Hostname:    Gethostnmae(),
