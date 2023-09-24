@@ -4,14 +4,14 @@ services:
     image: postgres:latest
     container_name: postgres
     environment:
-      POSTGRES_DB: rospi
-      POSTGRES_USER: rospi
-      POSTGRES_PASSWORD: rpitele
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - /Users/devashishraj/Desktop/postgresGO/raspi_IOT/rpi_telemetery/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-      - /Users/devashishraj/Desktop/postgresGO/teleDB:/var/lib/postgresql/data
+      - ${SCHEMA_PATH}:/docker-entrypoint-initdb.d/schema.sql
+      - ${DATABASE_PATH}:/var/lib/postgresql/data
 
   grafana:
     image: grafana/grafana:latest
@@ -21,13 +21,11 @@ services:
     depends_on:
       - postgres
     environment:
-      GF_DATABASE_TYPE: postgres
-      GF_DATABASE_HOST: postgres
-      GF_DATABASE_NAME: rospi
-      GF_DATABASE_USER: rospi
-      GF_DATABASE_PASSWORD: rpitele
+      GF_DATABASE_TYPE: ${GF_DATABASE_TYPE}
+      GF_DATABASE_HOST: ${GF_DATABASE_HOST}
+      GF_DATABASE_NAME: ${GF_DATABASE_NAME}
+      GF_DATABASE_USER: ${GF_DATABASE_USER}
+      GF_DATABASE_PASSWORD: ${GF_DATABASE_PASSWORD}
     volumes:
-      - /Users/devashishraj/Desktop/postgresGO/grafanaVolm:/var/lib/grafana
-
-
+      - ${GRAFANA_VOLUME}:/var/lib/grafana
 
