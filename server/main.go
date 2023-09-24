@@ -1,7 +1,8 @@
 package main
 
 import (
-	jsonHandler "server/jsonHandler"
+	"log"
+	"server/jsonHandler"
 )
 
 func CheckError(err error) {
@@ -12,6 +13,7 @@ func CheckError(err error) {
 
 func main() {
 	//
+	log.Println("starting server")
 	jsonHandler.ReceiveJSON()
 
 }

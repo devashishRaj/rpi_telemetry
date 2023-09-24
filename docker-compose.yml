@@ -1,0 +1,31 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ${SCHEMA_PATH}:/docker-entrypoint-initdb.d/schema.sql
+      - ${DATABASE_PATH}:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      GF_DATABASE_TYPE: ${GF_DATABASE_TYPE}
+      GF_DATABASE_HOST: ${GF_DATABASE_HOST}
+      GF_DATABASE_NAME: ${GF_DATABASE_NAME}
+      GF_DATABASE_USER: ${GF_DATABASE_USER}
+      GF_DATABASE_PASSWORD: ${GF_DATABASE_PASSWORD}
+    volumes:
+      - ${GRAFANA_VOLUME}:/var/lib/grafana
+

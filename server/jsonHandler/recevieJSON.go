@@ -2,6 +2,7 @@ package jsonHandler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	dataStruct "server/dataStruct"
 	postgresDB "server/postgresDB"
@@ -24,10 +25,12 @@ func ReceiveJSON() {
 
 			fmt.Printf("Received Info: %+v\n", jsonData)
 			c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
-			postgresDB.CheckPrimaryKey(jsonData)
+			postgresDB.CheckDevicesDB(jsonData)
 			postgresDB.CloseDB()
 		}
 	})
 
-	r.Run(":8080")
+	err := r.Run(":8080")
+	log.Fatalln(err)
+
 }

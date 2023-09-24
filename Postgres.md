@@ -1,15 +1,15 @@
-step 1 : pull docker image from docker hub , you can use alpine too but it's very minimal just under 100 mb thus it be missing important functionalities.
+#### step 1 : pull docker image from docker hub , you can use alpine too but it's very minimal just under 100 mb thus it be missing important functionalities.
 
 ```
 docker pull postgres
 ```
 
-step 2 : - To obtain the list of existing Docker Images, run the following command.
+#### step 2 : - To obtain the list of existing Docker Images, run the following command.
 ```
 docker images
 ```
 
-step 3 : setting up PostgreSQL on Docker
+#### step 3 : setting up PostgreSQL on Docker
 ```
 docker run --name postgres -e POSTGRES_USER=<username> -e POSTGRES_PASSWORD=<password> -p 5432:5432 -v <path on host system 
 to persist data or backup>:/var/lib/postgresql/data -d postgres
@@ -25,7 +25,55 @@ In the command given above, 
 - **-d** is the parameter that runs the Docker Container in the detached mode, i.e., in the background. If you accidentally close or terminate the Command Prompt, the Docker Container will still run in the background.
 - **Postgres** is the name of the Docker image that was previously downloaded to run the Docker Container.
 
-step 4: check the status of the newly created PostgreSQL container.
+  ### OR
+
+use docker compose : 
+
+```
+
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: xyz
+      POSTGRES_USER: xyz
+      POSTGRES_PASSWORD: xyz 
+    ports:
+      - "5432:5432"
+    volumes:
+      - <path to schema>/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - <path to a fodler to backup data>:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgres
+      GF_DATABASE_NAME: xyz
+      GF_DATABASE_USER: xyz
+      GF_DATABASE_PASSWORD: xyz
+    volumes:
+      - <path to bakcup grafana data>:/var/lib/grafana
+
+
+```
+then use : save this file in porject folder and in same folder run 
+
+```
+docker compose start 
+```
+** NOTE : Grafana container may stop on first run restart it via cli or desktop app 
+
+
+#### step 4: check the status of the newly created containers
+
 ```
 docker ps -a
 ```
@@ -37,16 +85,16 @@ CONTAINER ID   IMAGE      COMMAND                  CREATED          STATUS      
 <...>  postgres   "docker-entrypoint.s…"   20 seconds ago   Up 19 seconds   0.0.0.0:5432->5432/tcp   postgres
 ```
 
-step 5 : Running an Interactive Shell in a Docker Container
+#### step 5 : Running an Interactive Shell in a Docker Container
 
 ```
 docker exec -it postgresrpi bash
 ```
 
-step 6 : connect to particular database via a user :
+#### step 6 : connect to particular database via a user :
 
 ```
-psql -d iot -U <username> -W
+psql -d <db name> -U <username> -W
 ```
 The above command includes three flags:
 
@@ -54,36 +102,71 @@ The above command includes three flags:
 - `-U` - specifies the name of the user to connect as
 - `-W` - forces psql to ask for the user password before connecting to the database
 
-step 7 : 
-```
-CREATE SCHEMA IF NOT EXISTS telemetry;
-```
+some queries for grafana :
 
-step 8 :
+#### schema.sql file 
+
 ```
-create table telemetry.devices( HardwareID VARCHAR(255)  , primary key(HardwareID) );
+-- Create schema
+create schema telemetry;
+-- Create the devices table
+CREATE TABLE telemetry.devices (
+    MacAddress VARCHAR(25) PRIMARY KEY,
+    PrivateIP VARCHAR(25),
+    PublicIP VARCHAR(25),
+    Hostname VARCHAR(25),
+    OSType VARCHAR(25),
+    TotalMemory INT
+);
 
-
+-- Create the rpi4b_metrics table
 CREATE TABLE telemetry.rpi4b_metrics (
-    HardwareID VARCHAR(255),
+    MacAddress VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    CPUidle DOUBLE PRECISION,
-    TotalMemory BIGINT,
-    FreeMemory BIGINT,
-    IP VARCHAR(255),
-    Temperature real,
-    TimeStamp timestamp , constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
+    MemoryUsage INT,
+    Temperature REAL,
+    TotalProcesses INT,
+    TimeStamp TIMESTAMP UNIQUE,
+    CONSTRAINT fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress)
+);
 
-
+-- Create the rpi_temp_alert table
 CREATE TABLE telemetry.rpi_temp_alert (
-    HardwareID VARCHAR(255),
+    MacAddress VARCHAR(25),
     CPUuserLoad DOUBLE PRECISION,
-    CPUidle DOUBLE PRECISION,
-    TotalMemory BIGINT,
-    FreeMemory BIGINT,
-    IP VARCHAR(255),
-    Temperature real,
-    TimeStamp timestamp , constraint fk_HardwareID FOREIGN KEY (HardwareID) REFERENCES telemetry.devices(HardwareID));
+    MemoryUsage INT,
+    PrivateIP VARCHAR(25),
+    Temperature REAL,
+    TotalProcesses INT,
+    TimeStamp TIMESTAMP,
+    CONSTRAINT fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress)
+);
 
 
 ```
+query examples for grafana
+```
+select  telemetry.rpi4b_metrics.temperature , telemetry.rpi4b_metrics.timestamp as time  ,  telemetry.devices.privateip
+FROM telemetry.rpi4b_metrics
+FULL JOIN telemetry.devices
+ON telemetry.rpi4b_metrics.MacAddress = telemetry.devices.MacAddress ;
+
+```
+#### NOTE : here 'macAd' is a variable , present in settings menu (look for gear icon) in created dashboard this can used for per device data
+```
+SELECT
+  telemetry.rpi4b_metrics.MemoryUsage , 
+  telemetry.rpi4b_metrics.timestamp as time,
+  telemetry.devices.MacAddress
+FROM telemetry.rpi4b_metrics
+FULL JOIN telemetry.devices
+ON telemetry.rpi4b_metrics.MacAddress = telemetry.devices.MacAddress
+WHERE
+  telemetry.devices.MacAddress = '$macAd'
+
+```
+
+
+ 
+
+
