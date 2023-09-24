@@ -20,22 +20,24 @@ func CheckError(context string, err error) {
 	}
 }
 
-type SystemInfo struct {
-	MacAddress  string  `json:"MacAddress:"`
+type SystemMetrics struct {
 	CPUuserLoad float64 `json:"CPUuserLoad"`
 	TotalMemory int64   `json:"TotalMemory"`
 	FreeMemory  int64   `json:"FreeMemory"`
-	PrivateIP   string  `json:"privateIP"`
-	PublicIP    string  `json:"publicIP"`
 	Temperature float64 `json:"Temperature"`
 	TimeStamp   string  `json:"TimeStamp"`
-	Hostname    string  `json:"hostname"`
-	OsType      string  `json:"ostype"`
 	ProcesN     int64   `json:"nprocs"`
 }
 
-// global var to store update values
-var G_systemInfo SystemInfo
+// SystemInfo represents the system information.
+type SystemInfo struct {
+	MacAddress string `json:"MacAddress"`
+	PrivateIP  string `json:"privateIP"`
+	PublicIP   string `json:"publicIP"`
+	Hostname   string `json:"hostname"`
+	OsType     string `json:"ostype"`
+	Metrics    SystemMetrics
+}
 
 // get raspberry serial nuber , can act as UNIQUE key
 func GetmacAddr() string {
@@ -167,20 +169,22 @@ func StartScraping() SystemInfo {
 	currentTime := time.Now()
 
 	// Create a struct to hold the data
-	systemInfo := SystemInfo{
-		MacAddress:  GetmacAddr(),
-		CPUuserLoad: CalculateCPUUsage("user"),
-		TotalMemory: int64(GetMemoryValue("total")),
-		FreeMemory:  int64(GetMemoryValue("free")),
-		PrivateIP:   GetPrivateIP(),
-		PublicIP:    GetPublicIP(),
-		Temperature: GetInternalTemperature(),
-		TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
-		Hostname:    Gethostnmae(),
-		OsType:      getOStype(),
-		ProcesN:     TotalProcesses(),
+	systemData := SystemInfo{
+		MacAddress: GetmacAddr(),
+		PrivateIP:  GetPrivateIP(),
+		PublicIP:   GetPublicIP(),
+		Hostname:   Gethostnmae(),
+		OsType:     getOStype(),
+		Metrics: SystemMetrics{
+			CPUuserLoad: CalculateCPUUsage("user"),
+			TotalMemory: int64(GetMemoryValue("total")),
+			FreeMemory:  int64(GetMemoryValue("free")),
+			Temperature: GetInternalTemperature(),
+			TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
+			ProcesN:     TotalProcesses(),
+		},
 	}
 
-	return systemInfo
+	return systemData
 
 }

@@ -39,9 +39,9 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 			INSERT INTO telemetry.rpi_temp_alert (MacAddress, CPUuserLoad,  MemoryUsage,  
 				Temperature, TotalProcesses , TimeStamp)
 				VALUES ($1, $2, $3, $4, $5, $6)`,
-				jsonData.MacAddress, jsonData.CPUuserLoad,
-				jsonData.TotalMemory-jsonData.FreeMemory,
-				jsonData.Temperature, jsonData.ProcesN, jsonData.TimeStamp)
+				jsonData.MacAddress, jsonData.Metrics.CPUuserLoad,
+				jsonData.Metrics.TotalMemory-jsonData.Metrics.FreeMemory,
+				jsonData.Metrics.Temperature, jsonData.Metrics.ProcesN, jsonData.Metrics.TimeStamp)
 
 			if err != nil {
 

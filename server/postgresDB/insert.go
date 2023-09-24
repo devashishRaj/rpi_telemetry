@@ -31,7 +31,7 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 		ostype , totalmemory)
 		VALUES ($1, $2, $3, $4, $5, $6)`,
 			jsonData.MacAddress, jsonData.PrivateIP, jsonData.PublicIP,
-			jsonData.Hostname, jsonData.OsType, jsonData.TotalMemory)
+			jsonData.Hostname, jsonData.OsType, jsonData.Metrics.TotalMemory)
 		if err != nil {
 			fmt.Println("Query error in CheckDevicesDB when  ")
 			log.Fatalln(err)
@@ -61,7 +61,7 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	err := db.QueryRow(query, jsonData.MacAddress, jsonData.PrivateIP,
 		jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType,
-		jsonData.TotalMemory).Scan(&isPresent)
+		jsonData.Metrics.TotalMemory).Scan(&isPresent)
 
 	if err != nil {
 		fmt.Println("Query error in CheckPrimary")
@@ -85,7 +85,7 @@ func updateDeviceInfo(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	WHERE MacAddress = $6`,
 		jsonData.PrivateIP, jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType,
-		jsonData.TotalMemory, jsonData.MacAddress)
+		jsonData.Metrics.TotalMemory, jsonData.MacAddress)
 
 	if err != nil {
 		fmt.Println("Query error in Update device info")
@@ -103,9 +103,9 @@ func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	INSERT INTO telemetry.rpi4b_metrics (MacAddress, CPUuserLoad,  MemoryUsage,  
 								Temperature, TotalProcesses , TimeStamp)
 	VALUES ($1, $2, $3, $4, $5, $6)`,
-		jsonData.MacAddress, jsonData.CPUuserLoad,
-		jsonData.TotalMemory-jsonData.FreeMemory,
-		jsonData.Temperature, jsonData.ProcesN, jsonData.TimeStamp)
+		jsonData.MacAddress, jsonData.Metrics.CPUuserLoad,
+		jsonData.Metrics.TotalMemory-jsonData.Metrics.FreeMemory,
+		jsonData.Metrics.Temperature, jsonData.Metrics.ProcesN, jsonData.Metrics.TimeStamp)
 	if err != nil {
 
 		fmt.Println("error in InsertInDB")
