@@ -28,4 +28,9 @@ services:
       GF_DATABASE_PASSWORD: ${GF_DATABASE_PASSWORD}
     volumes:
       - ${GRAFANA_VOLUME}:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"] # Adjust the URL if needed
+      interval: 30s
+      timeout: 10s
+      retries: 5
 

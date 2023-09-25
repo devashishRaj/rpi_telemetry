@@ -9,21 +9,22 @@ import (
 	"log"
 	"net/http"
 	"time"
-	//"github.com/spf13/viper"
+
+	"github.com/spf13/viper"
 )
 
-// func ReadConfig() {
-// 	viper.AddConfigPath(".")
-// 	viper.AddConfigPath("./local/.configs")
-// 	viper.SetConfigName("config") // Register config file name (no extension)
-// 	viper.SetConfigType("json")   // Look for specific type
-// 	err := viper.ReadInConfig()
-// 	viper.WatchConfig()
-// 	if err != nil {
-// 		log.Fatalf("Error reading config file: %s", err)
-// 	}
-// 	viper.Debug()
-// }
+func ReadConfig() {
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./local/.configs")
+	viper.SetConfigName("config") // Register config file name (no extension)
+	viper.SetConfigType("json")   // Look for specific type
+	err := viper.ReadInConfig()
+	viper.WatchConfig()
+	if err != nil {
+		log.Fatalf("Error reading config file: %s", err)
+	}
+	viper.Debug()
+}
 
 type Response struct {
 	Message string `json:"message"`
@@ -39,7 +40,9 @@ func StructToJSON(input interface{}) {
 
 func httpPost(jsonData *bytes.Buffer) {
 	var response Response
-	resp, err := http.Post("http://10.147.19.40:8080/rpi", "application/json", jsonData)
+	serverURL := viper.GetString("server_url")
+	fmt.Println(serverURL)
+	resp, err := http.Post(serverURL, "application/json", jsonData)
 	if err != nil {
 		log.Fatalln("HTTP POST error:", err)
 
