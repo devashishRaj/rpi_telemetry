@@ -1,11 +1,11 @@
 package jsonHandler
 
 import (
+	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
+	postgresDB "devashishRaj/rpi_telemetry/server/postgresDB"
 	"fmt"
 	"log"
 	"net/http"
-	dataStruct "server/dataStruct"
-	postgresDB "server/postgresDB"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +26,7 @@ func ReceiveJSON() {
 			fmt.Printf("Received Info: %+v\n", jsonData)
 			c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
 			postgresDB.CheckDevicesDB(jsonData)
-			postgresDB.CloseDB()
+
 		}
 	})
 

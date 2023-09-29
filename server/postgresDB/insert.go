@@ -2,9 +2,9 @@ package postgresDB
 
 import (
 	"database/sql"
+	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"fmt"
 	"log"
-	dataStruct "server/dataStruct"
 
 	_ "github.com/lib/pq"
 )
@@ -25,7 +25,7 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 
 	}
 	fmt.Println("isPresent: ", isPresent)
-	if isPresent == false {
+	if !isPresent {
 		_, err := db.Exec(`
 		INSERT INTO telemetry.devices (MacAddress , privateIP ,  publicIP , hostname , 
 		ostype , totalmemory)
@@ -43,7 +43,7 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 	} else {
 		CheckPrimaryKey(jsonData, db)
 	}
-
+	defer db.Close()
 }
 
 func CheckPrimaryKey(jsonData dataStruct.SystemInfo, db *sql.DB) {
@@ -115,5 +115,4 @@ func InsertInDB(jsonData dataStruct.SystemInfo, db *sql.DB) {
 		fmt.Println("Data inserted successfully!")
 		AlertTemp(jsonData, db)
 	}
-	CloseDB()
 }

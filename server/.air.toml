@@ -5,7 +5,9 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "./tmp/main"
+  pre_cmd = ["./check.sh"]
   cmd = "go build -o ./tmp/main main.go"
+  post_cmd = ["golangci-lint run --enable-all"]
   delay = 0
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []

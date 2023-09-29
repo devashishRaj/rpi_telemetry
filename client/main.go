@@ -1,7 +1,7 @@
 package main
 
 import (
-	sendData "client/sendData"
+	sendData "devashishRaj/rpi_telemetry/client/sendData"
 )
 
 func main() {

@@ -1,15 +1,9 @@
 package main
 
 import (
+	"devashishRaj/rpi_telemetry/server/jsonHandler"
 	"log"
-	"server/jsonHandler"
 )
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	//

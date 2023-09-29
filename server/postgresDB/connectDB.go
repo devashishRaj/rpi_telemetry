@@ -14,7 +14,12 @@ func ReadConfig() {
 	viper.AddConfigPath("./local/.configs")
 	viper.SetConfigName("config") // Register config file name (no extension)
 	viper.SetConfigType("json")   // Look for specific type
-	viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	if err != nil {
+
+		fmt.Println("error in ConnectDB")
+		log.Fatalln(err)
+	}
 	viper.WatchConfig()
 }
 
@@ -36,9 +41,4 @@ func ConnectDB() *sql.DB {
 		return db
 	}
 	return nil
-}
-func CloseDB() {
-	if db != nil {
-		db.Close()
-	}
 }

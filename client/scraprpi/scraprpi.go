@@ -3,15 +3,26 @@ package scraprpi
 import (
 	"fmt"
 	"log"
+	"math"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
+	datastruct "devashishRaj/rpi_telemetry/server/dataStruct"
+
 	"github.com/mackerelio/go-osstat/cpu"
 	"github.com/mackerelio/go-osstat/memory"
 )
+
+func isNil(context string, v interface{}) {
+	if v == nil {
+		fmt.Printf("Error: %s\n", context)
+		log.Fatal("null value ")
+	}
+}
 
 func CheckError(context string, err error) {
 	if err != nil {
@@ -20,66 +31,85 @@ func CheckError(context string, err error) {
 	}
 }
 
-type SystemMetrics struct {
-	CPUuserLoad float64 `json:"CPUuserLoad"`
-	TotalMemory int64   `json:"TotalMemory"`
-	FreeMemory  int64   `json:"FreeMemory"`
-	Temperature float64 `json:"Temperature"`
-	TimeStamp   string  `json:"TimeStamp"`
-	ProcesN     int64   `json:"nprocs"`
+func ReutrnMinus(context string, err error) {
+
+	fmt.Printf("Error: %s\n", context)
 }
 
-// SystemInfo represents the system information.
-type SystemInfo struct {
-	MacAddress string `json:"MacAddress"`
-	PrivateIP  string `json:"privateIP"`
-	PublicIP   string `json:"publicIP"`
-	Hostname   string `json:"hostname"`
-	OsType     string `json:"ostype"`
-	Metrics    SystemMetrics
-}
+// type SystemMetrics struct {
+// 	CPUuserLoad float64 `json:"CPUuserLoad"`
+// 	TotalMemory int64   `json:"TotalMemory"`
+// 	FreeMemory  int64   `json:"FreeMemory"`
+// 	Temperature float64 `json:"Temperature"`
+// 	TimeStamp   string  `json:"TimeStamp"`
+// 	ProcesN     int64   `json:"nprocs"`
+// }
+
+// // SystemInfo represents the system information.
+// type SystemInfo struct {
+// 	MacAddress string `json:"MacAddress"`
+// 	PrivateIP  string `json:"privateIP"`
+// 	PublicIP   string `json:"publicIP"`
+// 	Hostname   string `json:"hostname"`
+// 	OsType     string `json:"ostype"`
+// 	Metrics    SystemMetrics
+// }
 
 // get raspberry serial nuber , can act as UNIQUE key
 func GetmacAddr() string {
-	cmdStr := "ifconfig ztiv5bmes5 | grep 'ether' | awk '{print $2}'"
+	var cmdStr string
+	os := runtime.GOOS
+	if os == "darwin" {
+		cmdStr = "ifconfig en0 | grep 'ether' | awk '{print $2}'"
+		// for zti refer following command
+		// "ifconfig | awk '/^feth[0-9]+/{getline; while (getline) { if ($1 == "ether") { print $2; break } } }'"
+	} else {
+		cmdStr = "ifconfig eth0 | grep 'ether' | awk '{print $2}'"
+	}
 	cmd := exec.Command("sh", "-c", cmdStr)
 	output, err := cmd.Output()
-	CheckError("error in hwid", err)
+	CheckError("error in macaddress", err)
+	isNil("error in macaddress", output)
 
-	HWID := string(output)
+	macaddress := string(output)
 	// use this trim when you get cmd line prompt on same line as output
-	HWID = strings.TrimRight(HWID, "\u0000")
-	HWID = strings.TrimSpace(string(HWID))
-	return HWID
+	macaddress = strings.TrimRight(macaddress, "\u0000")
+	macaddress = strings.TrimSpace(string(macaddress))
+	return macaddress
 
 }
 func Gethostnmae() string {
 	cmd := exec.Command("hostname")
 	output, err := cmd.Output()
 	CheckError("hostname", err)
+	isNil("error in host", output)
 
 	hostname := strings.TrimSpace(string(output))
 	return hostname
 }
 
-func CalculateCPUUsage(mode string) float64 {
+func CalculateCPUUsage(mode string, precision int) float64 {
 	before, err := cpu.Get()
-	CheckError("CPU ", err)
+	CheckError("CPU", err)
+	isNil("error in CPU", before)
 
 	time.Sleep(time.Duration(1) * time.Second)
 
 	after, err := cpu.Get()
-	CheckError("cpu", err)
+	CheckError("CPU", err)
+	isNil("error in CPU", after)
 
 	total := float64(after.Total - before.Total)
 
 	switch mode {
 	case "user":
 		cpuUsr := (float64(after.User-before.User) / total * 100)
-		return cpuUsr
+		isNil("error in CPU", cpuUsr)
+		return math.Round(cpuUsr*math.Pow(10, float64(precision))) / math.Pow(10, float64(precision))
 	case "idle":
 		cpuIdle := (float64(after.Idle-before.Idle) / total * 100)
-		return cpuIdle
+		isNil("error in CPU", cpuIdle)
+		return math.Round(cpuIdle*math.Pow(10, float64(precision))) / math.Pow(10, float64(precision))
 	default:
 		return 0.0
 	}
@@ -88,13 +118,16 @@ func CalculateCPUUsage(mode string) float64 {
 func GetMemoryValue(mode string) float64 {
 	memory, err := memory.Get()
 	CheckError("memory", err)
+	isNil("error in memory", memory)
 
 	switch mode {
 	case "total":
 		memTotal := float64(memory.Total) / 1000000
+		isNil("error in memory", memTotal)
 		return memTotal
 	case "free":
 		memFree := float64(memory.Free) / 1000000
+		isNil("error in memory", memFree)
 		return memFree
 	default:
 		return 0.0
@@ -102,28 +135,41 @@ func GetMemoryValue(mode string) float64 {
 }
 
 func GetPrivateIP() string {
-	cmdStr := "ifconfig | grep -oP 'inet \\K[\\d.]+' | tail -1"
+	os := runtime.GOOS
+	var cmdStr string
+	if os == "darwin" {
+		cmdStr = "ifconfig | awk '/^feth[0-9]+/{getline; while (getline) { if ($1 == \"inet\") { print $2; break } } }'"
+	} else {
+		cmdStr = "ifconfig | awk '/^.*zti[^:]*:/ {while (getline) { if ($1 == \"inet\") { print $2; break } } }'"
+	}
 	cmd := exec.Command("sh", "-c", cmdStr)
 	output, err := cmd.Output()
 	CheckError("privateIP", err)
+	isNil("error in privateIP", output)
 
 	ipAddress := strings.TrimSpace(string(output))
 	return ipAddress
 }
 
 func GetPublicIP() string {
-	cmd := exec.Command("curl", "ifconfig.co")
+	cmd := exec.Command("curl", "ipinfo.io/ip")
 	output, err := cmd.Output()
 	CheckError("publicIP", err)
+	isNil("error in publicIP", output)
 
-	pipAddress := strings.TrimSpace(string(output))
-	return pipAddress
+	pubAddress := strings.TrimSpace(string(output))
+	pubAddress = strings.TrimRight(pubAddress, "\u0000")
+	fmt.Println(pubAddress)
+	return pubAddress
 }
 
 func GetInternalTemperature() float64 {
 	cmd := exec.Command("vcgencmd", "measure_temp")
 	output, err := cmd.Output()
-	CheckError("temp", err)
+	if err != nil {
+		ReutrnMinus("temp", err)
+		return -1
+	}
 
 	temperature := strings.TrimSpace(string(output))
 	// Define the regular expression pattern
@@ -140,11 +186,8 @@ func GetInternalTemperature() float64 {
 }
 
 func getOStype() string {
-	cmd := exec.Command("lsb_release", "-ds")
-	output, err := cmd.Output()
-	CheckError("ostype", err)
-
-	return strings.TrimSpace(string(output))
+	os := runtime.GOOS
+	return os
 }
 
 func TotalProcesses() int64 {
@@ -153,7 +196,10 @@ func TotalProcesses() int64 {
 
 	// Capture the command output
 	output, err := cmd.Output()
-	CheckError("n processes", err)
+	if err != nil {
+		ReutrnMinus("TotalProcesses", err)
+		return -1
+	}
 	trimmedOutput := strings.TrimSpace(string(output))
 	// Convert the output to an integer
 	count, err := strconv.ParseInt(trimmedOutput, 10, 64)
@@ -164,19 +210,19 @@ func TotalProcesses() int64 {
 }
 
 // to store values into struct
-func StartScraping() SystemInfo {
+func StartScraping() datastruct.SystemInfo {
 
 	currentTime := time.Now()
 
 	// Create a struct to hold the data
-	systemData := SystemInfo{
+	systemData := datastruct.SystemInfo{
 		MacAddress: GetmacAddr(),
 		PrivateIP:  GetPrivateIP(),
 		PublicIP:   GetPublicIP(),
 		Hostname:   Gethostnmae(),
 		OsType:     getOStype(),
-		Metrics: SystemMetrics{
-			CPUuserLoad: CalculateCPUUsage("user"),
+		Metrics: datastruct.SystemMetrics{
+			CPUuserLoad: CalculateCPUUsage("user", 2),
 			TotalMemory: int64(GetMemoryValue("total")),
 			FreeMemory:  int64(GetMemoryValue("free")),
 			Temperature: GetInternalTemperature(),

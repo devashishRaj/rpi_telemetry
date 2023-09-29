@@ -2,9 +2,9 @@ package postgresDB
 
 import (
 	"database/sql"
+	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"fmt"
 	"log"
-	dataStruct "server/dataStruct"
 )
 
 func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
@@ -59,5 +59,5 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 	} else {
 		fmt.Println("avg value is null")
 	}
-	CloseDB()
+
 }

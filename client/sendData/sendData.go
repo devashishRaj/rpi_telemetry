@@ -2,29 +2,28 @@ package senddata
 
 import (
 	"bytes"
-	scrapRpi "client/scraprpi"
+	scrapRpi "devashishRaj/rpi_telemetry/client/scraprpi"
+	datastruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/spf13/viper"
+	//"github.com/spf13/viper"
 )
 
-func ReadConfig() {
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("./local/.configs")
-	viper.SetConfigName("config") // Register config file name (no extension)
-	viper.SetConfigType("json")   // Look for specific type
-	err := viper.ReadInConfig()
-	viper.WatchConfig()
-	if err != nil {
-		log.Fatalf("Error reading config file: %s", err)
-	}
-	viper.Debug()
-}
+// func ReadConfig() {
+// 	viper.AddConfigPath("$HOME/.config/rpiTele/")
+// 	viper.AddConfigPath(".")
+// 	viper.SetConfigName("config") // Register config file name (no extension)
+// 	viper.SetConfigType("json")   // Look for specific type
+// 	err := viper.ReadInConfig()
+// 	viper.WatchConfig()
+// 	if err != nil {
+// 		log.Fatalf("Error reading config file: %s", err)
+// 	}
+// }
 
 type Response struct {
 	Message string `json:"message"`
@@ -39,9 +38,11 @@ func StructToJSON(input interface{}) {
 }
 
 func httpPost(jsonData *bytes.Buffer) {
+	var serverURL string
+	//ReadConfig()
+	//serverURL = viper.GetString("server")
 	var response Response
-	serverURL := viper.GetString("server_url")
-	fmt.Println(serverURL)
+	serverURL = "http://10.147.19.40:8080/rpi"
 	resp, err := http.Post(serverURL, "application/json", jsonData)
 	if err != nil {
 		log.Fatalln("HTTP POST error:", err)
@@ -64,7 +65,7 @@ func httpPost(jsonData *bytes.Buffer) {
 
 }
 
-func SendData(sysinfo scrapRpi.SystemInfo) {
+func SendData(sysinfo datastruct.SystemInfo) {
 
 	// https://github.com/spf13/viper#getting-values-from-viper
 	// serverUrl := viper.GetString("server_url")
