@@ -6,6 +6,7 @@ import (
 
 func main() {
 
-	sendData.SendInterval()
+	sendData.SendMetrics()
+	sendData.SendMetrics()
 
 }

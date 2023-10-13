@@ -1,14 +1,16 @@
 package postgresDB
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/spf13/viper"
 )
 
-var db *sql.DB
+var G_dbpool *pgxpool.Pool
 
 func ReadConfig() {
 	viper.AddConfigPath("./local/.configs")
@@ -20,10 +22,9 @@ func ReadConfig() {
 		fmt.Println("error in ConnectDB")
 		log.Fatalln(err)
 	}
-	viper.WatchConfig()
 }
 
-func ConnectDB() *sql.DB {
+func ConnectDB() {
 	ReadConfig()
 	// connection string
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -32,13 +33,11 @@ func ConnectDB() *sql.DB {
 		viper.Get("postgresDB.sslmode"))
 
 	// open database
-	db, err := sql.Open("postgres", psqlconn)
+	db, err := pgxpool.New(context.Background(), psqlconn)
 	if err != nil {
 
 		fmt.Println("error in ConnectDB")
 		log.Fatalln(err)
-	} else {
-		return db
 	}
-	return nil
+	G_dbpool = db
 }

@@ -210,27 +210,35 @@ func TotalProcesses() int64 {
 }
 
 // to store values into struct
-func StartScraping() datastruct.SystemInfo {
+func ScrapMetrics() datastruct.MetricsBatch {
 
 	currentTime := time.Now()
 
-	// Create a struct to hold the data
-	systemData := datastruct.SystemInfo{
+	MetricsData := datastruct.MetricsBatch{
+		MacAddr: GetmacAddr(),
+		Metrics: []datastruct.SystemMetrics{
+			{
+				CPUuserLoad: CalculateCPUUsage("user", 2),
+				TotalMemory: int64(GetMemoryValue("total")),
+				FreeMemory:  int64(GetMemoryValue("free")),
+				Temperature: GetInternalTemperature(),
+				TimeStamp:   currentTime,
+				ProcesN:     TotalProcesses(),
+			},
+			// Add more SystemMetrics as needed
+		},
+	}
+
+	return MetricsData
+
+}
+func ScrapSysInfo() datastruct.SystemInfo {
+	sysinfo := datastruct.SystemInfo{
 		MacAddress: GetmacAddr(),
 		PrivateIP:  GetPrivateIP(),
 		PublicIP:   GetPublicIP(),
 		Hostname:   Gethostnmae(),
 		OsType:     getOStype(),
-		Metrics: datastruct.SystemMetrics{
-			CPUuserLoad: CalculateCPUUsage("user", 2),
-			TotalMemory: int64(GetMemoryValue("total")),
-			FreeMemory:  int64(GetMemoryValue("free")),
-			Temperature: GetInternalTemperature(),
-			TimeStamp:   currentTime.Format("2006-01-02 15:04:05"),
-			ProcesN:     TotalProcesses(),
-		},
 	}
-
-	return systemData
-
+	return sysinfo
 }

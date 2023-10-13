@@ -7,8 +7,7 @@ CREATE TABLE telemetry.devices (
     PrivateIP VARCHAR(25) NOT NULL,
     PublicIP VARCHAR(25) NOT NULL,
     Hostname VARCHAR(25) NOT NULL,
-    OSType VARCHAR(25) NOT NULL,
-    TotalMemory INT NOT NULL
+    OSType VARCHAR(25) NOT NULL
 );
 
 -- Create the rpi4b_metrics table

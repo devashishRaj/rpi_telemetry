@@ -11,26 +11,35 @@ import (
 )
 
 func ReceiveJSON() {
-	var jsonData dataStruct.SystemInfo
+	var metricsData dataStruct.MetricsBatch
+	var sysinfoData dataStruct.SystemInfo
 
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
 
-	r.POST("/rpi", func(c *gin.Context) {
-		if err := c.BindJSON(&jsonData); err != nil {
+	r.POST("/tele/metrics", func(c *gin.Context) {
+		if err := c.BindJSON(&metricsData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		} else {
+			fmt.Printf("Received Metrics: %+v\n", metricsData)
+			c.JSON(http.StatusOK, gin.H{"message": "Metrics data received successfully"})
+			postgresDB.InsertInDB(metricsData)
+		}
+	})
 
-			fmt.Printf("Received Info: %+v\n", jsonData)
-			c.JSON(http.StatusOK, gin.H{"message": "JSON data received successfully"})
-			postgresDB.CheckDevicesDB(jsonData)
-
+	r.POST("/tele/sysinfo", func(c *gin.Context) {
+		if err := c.BindJSON(&sysinfoData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		} else {
+			fmt.Printf("Received System Info: %+v\n", sysinfoData)
+			c.JSON(http.StatusOK, gin.H{"message": "System Info data received successfully"})
+			postgresDB.CheckDevicesDB(sysinfoData)
 		}
 	})
 
 	err := r.Run(":8080")
 	log.Fatalln(err)
-
 }

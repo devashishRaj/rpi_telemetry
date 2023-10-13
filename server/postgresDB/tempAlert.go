@@ -1,13 +1,15 @@
 package postgresDB
 
 import (
+	"context"
 	"database/sql"
+
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"fmt"
 	"log"
 )
 
-func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
+func AlertTemp(jsonData dataStruct.MetricsBatch) {
 
 	// // Set custom prefix and flags to differentiate alerts
 	// log.SetPrefix("[ALERT] ")
@@ -25,7 +27,7 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 		AND timestamp >= NOW() - INTERVAL '60 seconds';
 		`
 	var avgTemperature sql.NullFloat64
-	err := db.QueryRow(query, jsonData.MacAddress).Scan(&avgTemperature)
+	err := G_dbpool.QueryRow(context.Background(), query, jsonData.MacAddr).Scan(&avgTemperature)
 	if err != nil {
 
 		fmt.Println("calc query error in AvgTemp")
@@ -35,13 +37,13 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 
 	if avgTemperature.Valid {
 		if avgTemperature.Float64 > 44 {
-			_, err := db.Exec(`
+			_, err := G_dbpool.Exec(context.Background(), `
 			INSERT INTO telemetry.rpi_temp_alert (MacAddress, CPUuserLoad,  MemoryUsage,  
 				Temperature, TotalProcesses , TimeStamp)
 				VALUES ($1, $2, $3, $4, $5, $6)`,
-				jsonData.MacAddress, jsonData.Metrics.CPUuserLoad,
-				jsonData.Metrics.TotalMemory-jsonData.Metrics.FreeMemory,
-				jsonData.Metrics.Temperature, jsonData.Metrics.ProcesN, jsonData.Metrics.TimeStamp)
+				jsonData.MacAddr, jsonData.Metrics[0].CPUuserLoad,
+				jsonData.Metrics[0].TotalMemory-jsonData.Metrics[0].FreeMemory,
+				jsonData.Metrics[0].Temperature, jsonData.Metrics[0].ProcesN, jsonData.Metrics[0].TimeStamp)
 
 			if err != nil {
 
@@ -52,7 +54,7 @@ func AlertTemp(jsonData dataStruct.SystemInfo, db *sql.DB) {
 				fmt.Println("Data inserted successfully!")
 
 				log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
-					jsonData.MacAddress, avgTemperature.Float64)
+					jsonData.MacAddr, avgTemperature.Float64)
 			}
 		}
 

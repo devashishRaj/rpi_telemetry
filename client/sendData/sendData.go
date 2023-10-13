@@ -3,7 +3,6 @@ package senddata
 import (
 	"bytes"
 	scrapRpi "devashishRaj/rpi_telemetry/client/scraprpi"
-	datastruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,21 +28,22 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func StructToJSON(input interface{}) {
+func httpPost(input interface{}, dataflag string) {
+	//ReadConfig()
+	//serverURL = viper.GetString("server")
 	jsonData, err := json.Marshal(input)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	httpPost(bytes.NewBuffer(jsonData))
-}
-
-func httpPost(jsonData *bytes.Buffer) {
-	var serverURL string
-	//ReadConfig()
-	//serverURL = viper.GetString("server")
 	var response Response
-	serverURL = "http://10.147.19.40:8080/rpi"
-	resp, err := http.Post(serverURL, "application/json", jsonData)
+	var URL string
+	if dataflag == "metrics" {
+		URL = "http://10.147.19.40:8080/tele/metrics"
+	} else if dataflag == "sysinfo" {
+		URL = "http://10.147.19.40:8080/tele/sysinfo"
+	}
+
+	resp, err := http.Post(URL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Fatalln("HTTP POST error:", err)
 
@@ -65,21 +65,19 @@ func httpPost(jsonData *bytes.Buffer) {
 
 }
 
-func SendData(sysinfo datastruct.SystemInfo) {
-
-	// https://github.com/spf13/viper#getting-values-from-viper
-	// serverUrl := viper.GetString("server_url")
-	// fmt.Println(serverUrl)
-	//log.Fatalln(" serverUrl to string assertion failed")
-
-	StructToJSON(sysinfo)
-}
-
-func SendInterval() {
+func SendMetrics() {
 
 	for {
 		//scrapRpi.G_systemInfo = scrapRpi.StartScraping()
-		SendData(scrapRpi.StartScraping())
+		httpPost(scrapRpi.ScrapMetrics(), "metrics")
 		time.Sleep(time.Second * 10)
+	}
+}
+func SendInfo() {
+
+	for {
+		//scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+		httpPost(scrapRpi.ScrapSysInfo(), "sysinfo")
+		time.Sleep(time.Second * 30)
 	}
 }

@@ -1,12 +1,14 @@
-package datastruct
+package dataStruct
+
+import "time"
 
 type SystemMetrics struct {
-	CPUuserLoad float64 `json:"CPUuserLoad"`
-	TotalMemory int64   `json:"TotalMemory"`
-	FreeMemory  int64   `json:"FreeMemory"`
-	Temperature float64 `json:"Temperature"`
-	TimeStamp   string  `json:"TimeStamp"`
-	ProcesN     int64   `json:"nprocs"`
+	CPUuserLoad float64   `json:"CPUuserLoad"`
+	TotalMemory int64     `json:"TotalMemory"`
+	FreeMemory  int64     `json:"FreeMemory"`
+	Temperature float64   `json:"Temperature"`
+	TimeStamp   time.Time `json:"TimeStamp"`
+	ProcesN     int64     `json:"nprocs"`
 }
 
 // SystemInfo represents the system information.
@@ -16,5 +18,9 @@ type SystemInfo struct {
 	PublicIP   string `json:"publicIP"`
 	Hostname   string `json:"hostname"`
 	OsType     string `json:"ostype"`
-	Metrics    SystemMetrics
+}
+
+type MetricsBatch struct {
+	MacAddr string
+	Metrics []SystemMetrics
 }
