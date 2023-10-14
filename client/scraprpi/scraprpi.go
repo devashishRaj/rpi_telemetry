@@ -36,26 +36,6 @@ func ReutrnMinus(context string, err error) {
 	fmt.Printf("Error: %s\n", context)
 }
 
-// type SystemMetrics struct {
-// 	CPUuserLoad float64 `json:"CPUuserLoad"`
-// 	TotalMemory int64   `json:"TotalMemory"`
-// 	FreeMemory  int64   `json:"FreeMemory"`
-// 	Temperature float64 `json:"Temperature"`
-// 	TimeStamp   string  `json:"TimeStamp"`
-// 	ProcesN     int64   `json:"nprocs"`
-// }
-
-// // SystemInfo represents the system information.
-// type SystemInfo struct {
-// 	MacAddress string `json:"MacAddress"`
-// 	PrivateIP  string `json:"privateIP"`
-// 	PublicIP   string `json:"publicIP"`
-// 	Hostname   string `json:"hostname"`
-// 	OsType     string `json:"ostype"`
-// 	Metrics    SystemMetrics
-// }
-
-// get raspberry serial nuber , can act as UNIQUE key
 func GetmacAddr() string {
 	var cmdStr string
 	os := runtime.GOOS
@@ -212,8 +192,6 @@ func TotalProcesses() int64 {
 // to store values into struct
 func ScrapMetrics() datastruct.MetricsBatch {
 
-	currentTime := time.Now()
-
 	MetricsData := datastruct.MetricsBatch{
 		MacAddr: GetmacAddr(),
 		Metrics: []datastruct.SystemMetrics{
@@ -222,7 +200,7 @@ func ScrapMetrics() datastruct.MetricsBatch {
 				TotalMemory: int64(GetMemoryValue("total")),
 				FreeMemory:  int64(GetMemoryValue("free")),
 				Temperature: GetInternalTemperature(),
-				TimeStamp:   currentTime,
+				TimeStamp:   time.Now().UTC(),
 				ProcesN:     TotalProcesses(),
 			},
 			// Add more SystemMetrics as needed

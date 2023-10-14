@@ -24,7 +24,6 @@ func InsertInDB(jsonData dataStruct.MetricsBatch) {
 		log.Fatalln(err)
 
 	} else {
-		fmt.Println("Data inserted successfully!")
 		AlertTemp(jsonData)
 	}
 }

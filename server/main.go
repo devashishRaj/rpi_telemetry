@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	//
 	log.Println("starting server")
 	postgresDB.ConnectDB()
 	jsonHandler.ReceiveJSON()

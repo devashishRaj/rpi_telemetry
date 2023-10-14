@@ -17,7 +17,7 @@ CREATE TABLE telemetry.rpi4b_metrics (
     MemoryUsage INT NOT NULL,
     Temperature REAL NOT NULL,
     TotalProcesses INT NOT NULL,
-    TimeStamp TIMESTAMP UNIQUE NOT NULL,
+    TimeStamp TIMESTAMP WITH TIME ZONE UNIQUE NOT NULL,
     CONSTRAINT fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress)
 );
 
@@ -29,7 +29,7 @@ CREATE TABLE telemetry.rpi_temp_alert (
     PrivateIP VARCHAR(25) NOT NULL,
     Temperature REAL NOT NULL,
     TotalProcesses INT NOT NULL,
-    TimeStamp TIMESTAMP NOT NULL,
+    TimeStamp TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress)
 );
 

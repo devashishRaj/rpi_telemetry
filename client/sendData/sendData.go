@@ -66,18 +66,21 @@ func httpPost(input interface{}, dataflag string) {
 }
 
 func SendMetrics() {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
 
-	for {
-		//scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+	for range ticker.C {
+		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
 		httpPost(scrapRpi.ScrapMetrics(), "metrics")
-		time.Sleep(time.Second * 10)
 	}
 }
-func SendInfo() {
 
-	for {
-		//scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+func SendInfo() {
+	ticker := time.NewTicker(25 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
 		httpPost(scrapRpi.ScrapSysInfo(), "sysinfo")
-		time.Sleep(time.Second * 30)
 	}
 }

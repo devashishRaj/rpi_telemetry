@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	sendData.SendMetrics()
-	sendData.SendMetrics()
-
+	go sendData.SendMetrics()
+	go sendData.SendInfo()
+	select {}
 }

@@ -51,8 +51,6 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 				log.Fatalln(err)
 
 			} else {
-				fmt.Println("Data inserted successfully!")
-
 				log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
 					jsonData.MacAddr, avgTemperature.Float64)
 			}
