@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
+
+var metricsMutex sync.Mutex
+var sysinfoMutex sync.Mutex
 
 func ReceiveJSON() {
 	var metricsData dataStruct.MetricsBatch
@@ -19,6 +23,8 @@ func ReceiveJSON() {
 	r := gin.Default()
 
 	r.POST("/tele/metrics", func(c *gin.Context) {
+		metricsMutex.Lock()
+		defer metricsMutex.Unlock()
 		if err := c.BindJSON(&metricsData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -30,6 +36,8 @@ func ReceiveJSON() {
 	})
 
 	r.POST("/tele/sysinfo", func(c *gin.Context) {
+		sysinfoMutex.Lock()
+		defer sysinfoMutex.Unlock()
 		if err := c.BindJSON(&sysinfoData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

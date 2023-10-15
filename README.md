@@ -11,24 +11,23 @@ git clone https://github.com/devashishRaj/rip_telemetry.git
 
 **then cd into client folder:**
 
-#### step 2 use viper to configure server url , viper configuration section , it similar for client side 
 
 
-#### step3 : build executable , 
+#### step 2 : build executable , 
 ```
 make build-all 
 ```
-#### step4: transfer build file to your raspy , eg: use scp if it's on same network 
+#### step 3: transfer build file to your raspy , eg: use scp if it's on same network 
 ```
 scp <path to executable> <username>@<ip address>:<path to  save file on raspberry >
 ```
-#### step5: run file on raspberry , ssh or login into raspi
+#### step 4 : run file on raspberry , ssh or login into raspi
 
 ```
 <path to file>/<file name>
 ```
 
-#### step 6 : run main.go on server side where database is setup , cd into server folder , if you have air live relaoad for goalng 
+#### step 5 : run main.go on server side where database is setup , cd into server folder , if you have air live relaoad for goalng 
 #### cd int server folder and type  " air "
 
 #### OR 
@@ -63,15 +62,7 @@ sample json format for server side
 }
 
 ```
-for client side
-```
-{
 
-	"serverinfo": {
-		"url":  "http://<server privateip>/rpi"
-	}			
-
-}
-```
-
-tip : use zerotier for multiple devices existing on different lans for this project 
+tip : use zerotier for multiple devices existing on different lans for this project
+      for to get a geoloaction visulization in grafana , you article mentioned below :
+          https://medium.com/@tomjohnburton/visualising-a-distributed-network-c36871da52af
