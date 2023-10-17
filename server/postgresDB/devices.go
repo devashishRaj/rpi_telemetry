@@ -5,12 +5,9 @@ import (
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	"fmt"
 	"log"
-	"sync"
 
 	_ "github.com/jackc/pgx/v5"
 )
-
-var dbMutex sync.Mutex
 
 func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 	query := (`

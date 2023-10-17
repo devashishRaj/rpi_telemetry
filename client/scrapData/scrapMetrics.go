@@ -52,23 +52,20 @@ func CalculateCPUUsage(mode string, precision int) {
 }
 
 // GetMemoryValue retrieves memory information based on the given mode.
-func GetMemoryValue(mode string) {
+func GetMemoryUsage() {
+	// obtained in bytes , divide by 1000 for kb 1000,000 for mb .
 	memory, err := memory.Get()
 	handlerror.CheckError("memory", err)
 	handlerror.IsNil("error in memory", memory)
 
-	switch mode {
-	case "total":
-		memTotal := float64(memory.Total) / 1000000
-		handlerror.IsNil("error in memory", memTotal)
-		AccumulateMetrics("TotalMemory", memTotal)
-	case "free":
-		memFree := float64(memory.Free) / 1000000
-		handlerror.IsNil("error in memory", memFree)
-		AccumulateMetrics("FreeMemory", memFree)
-	default:
+	memUsed := float64((memory.Used) / 1000000)
+	handlerror.IsNil("error in memory", memUsed)
 
-	}
+	memFree := float64(memory.Free) / 1000000
+	handlerror.IsNil("error in memory", memFree)
+
+	AccumulateMetrics("ramusage", memUsed)
+
 }
 
 // GetInternalTemperature measures the internal temperature and accumulates the result.
@@ -106,27 +103,33 @@ func TotalProcesses() {
 		// Convert the output to an integer
 		count, err := strconv.ParseInt(trimmedOutput, 10, 64)
 		handlerror.CheckError("n processes, string parse", err)
-		AccumulateMetrics("Temperature", float64(count))
+		AccumulateMetrics("TotalProcesses", float64(count))
 	}
 }
 
 // MetricInterval sets up periodic metric collection.
 func MetricInterval() {
 	ticker1 := time.NewTicker(10 * time.Second)
+	go func() {
+		for range ticker1.C {
+			CalculateCPUUsage("user", 2)
+			GetInternalTemperature()
+			SendAccumulatedMetrics()
+		}
+	}()
 	defer ticker1.Stop()
-	for range ticker1.C {
-		CalculateCPUUsage("user", 2)
-		GetMemoryValue("total")
-		GetMemoryValue("free")
-		SendAccumulatedMetrics()
-	}
-	ticker2 := time.NewTicker(30 * time.Second)
+	ticker2 := time.NewTicker(31 * time.Second)
+	go func() {
+		for range ticker2.C {
+			//GetMemoryValue("total")
+			GetMemoryUsage()
+			TotalProcesses()
+			//fmt.Println("Inside ticker 2")
+			SendAccumulatedMetrics()
+		}
+	}()
 	defer ticker2.Stop()
-	for range ticker2.C {
-		GetInternalTemperature()
-		TotalProcesses()
-		SendAccumulatedMetrics()
-	}
+	select {}
 }
 
 // AccumulateMetrics accumulates a metric in the accumulatedMetrics slice.
