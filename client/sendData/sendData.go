@@ -2,13 +2,11 @@ package senddata
 
 import (
 	"bytes"
-	scrapRpi "devashishRaj/rpi_telemetry/client/scraprpi"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"time"
 	//"github.com/spf13/viper"
 )
 
@@ -28,7 +26,7 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func httpPost(input interface{}, dataflag string) {
+func HttpPost(input interface{}, dataflag string) {
 	//ReadConfig()
 	//serverURL = viper.GetString("server")
 	jsonData, err := json.Marshal(input)
@@ -65,22 +63,43 @@ func httpPost(input interface{}, dataflag string) {
 
 }
 
-func SendMetrics() {
-	ticker := time.NewTicker(10 * time.Second)
-	defer ticker.Stop()
+// func sendInterval() {
+// 	ticker1 := time.NewTicker(10 * time.Second)
+// 	defer ticker1.Stop()
+// 	for range ticker1.C {
+// 		scrapRpi.CalculateCPUUsage("user", 2)
+// 		scrapRpi.GetMemoryValue("total")
+// 		scrapRpi.GetMemoryValue("free")
+// 		scrapRpi.GetInternalTemperature()
+// 		scrapRpi.TotalProcesses()
+// 	}
+// 	ticker2 := time.NewTicker(30 * time.Second)
+// 	defer ticker1.Stop()
+// 	for range ticker2.C {
+// 		scrapRpi.GetMemoryValue("total")
+// 		scrapRpi.GetMemoryValue("free")
+// 		scrapRpi.GetInternalTemperature()
+// 		scrapRpi.TotalProcesses()
+// 	}
 
-	for range ticker.C {
-		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
-		httpPost(scrapRpi.ScrapMetrics(), "metrics")
-	}
-}
+// }
 
-func SendInfo() {
-	ticker := time.NewTicker(25 * time.Second)
-	defer ticker.Stop()
+// func SendMetrics(metricsData dataStruct.MetricsBatch) {
+// 	// ticker := time.NewTicker(10 * time.Second)
+// 	// defer ticker.Stop()
 
-	for range ticker.C {
-		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
-		httpPost(scrapRpi.ScrapSysInfo(), "sysinfo")
-	}
-}
+// 	// for range ticker.C {
+// 	// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+// 	httpPost(metricsData, "metrics")
+// 	//}
+// }
+
+// func SendSysInfo() {
+// 	ticker := time.NewTicker(25 * time.Second)
+// 	defer ticker.Stop()
+
+// 	for range ticker.C {
+// 		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+// 		httpPost(scrapData.ScrapSysInfo(), "sysinfo")
+// 	}
+// }

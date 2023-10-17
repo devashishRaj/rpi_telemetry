@@ -1,12 +1,12 @@
 package main
 
 import (
-	sendData "devashishRaj/rpi_telemetry/client/sendData"
+	scrapData "devashishRaj/rpi_telemetry/client/scrapData"
 )
 
 func main() {
 
-	go sendData.SendMetrics()
-	go sendData.SendInfo()
+	go scrapData.MetricInterval()
+	go scrapData.SendSysInfo()
 	select {}
 }

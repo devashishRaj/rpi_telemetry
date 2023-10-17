@@ -10,6 +10,7 @@ import (
 )
 
 func AlertTemp(jsonData dataStruct.MetricsBatch) {
+	deviceMetrics := jsonData.Metrics
 
 	// // Set custom prefix and flags to differentiate alerts
 	// log.SetPrefix("[ALERT] ")
@@ -21,9 +22,10 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 
 	query :=
 		`
-		SELECT AVG(temperature) AS avg_temperature
-		FROM telemetry.rpi4b_metrics
+		SELECT AVG(value) AS avg_temperature
+		FROM telemetry.metrics_new
 		WHERE MacAddress = $1
+		AND name = 'temperature'
 		AND timestamp >= NOW() - INTERVAL '60 seconds';
 		`
 	var avgTemperature sql.NullFloat64
@@ -38,12 +40,11 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 	if avgTemperature.Valid {
 		if avgTemperature.Float64 > 44 {
 			_, err := G_dbpool.Exec(context.Background(), `
-			INSERT INTO telemetry.rpi_temp_alert (MacAddress, CPUuserLoad,  MemoryUsage,  
-				Temperature, TotalProcesses , TimeStamp)
-				VALUES ($1, $2, $3, $4, $5, $6)`,
-				jsonData.MacAddr, jsonData.Metrics[0].CPUuserLoad,
-				jsonData.Metrics[0].TotalMemory-jsonData.Metrics[0].FreeMemory,
-				jsonData.Metrics[0].Temperature, jsonData.Metrics[0].ProcesN, jsonData.Metrics[0].TimeStamp)
+			INSERT INTO telemetry.rpi_temp_alert (macaddress , name , value ,timestamp)
+			VALUES ($1, $2, $3)`,
+				jsonData.MacAddr, deviceMetrics[0].Name,
+				deviceMetrics[0].Value,
+				deviceMetrics[0].TimeStamp)
 
 			if err != nil {
 
@@ -56,8 +57,6 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 			}
 		}
 
-	} else {
-		fmt.Println("avg value is null")
 	}
 
 }

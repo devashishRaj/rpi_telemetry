@@ -3,7 +3,8 @@ package jsonHandler
 import (
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
 	postgresDB "devashishRaj/rpi_telemetry/server/postgresDB"
-	"fmt"
+
+	//"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -23,13 +24,14 @@ func ReceiveJSON() {
 	r := gin.Default()
 
 	r.POST("/tele/metrics", func(c *gin.Context) {
+		// Todo(check plugin for fuzzy todo tag) add function to check
 		metricsMutex.Lock()
 		defer metricsMutex.Unlock()
 		if err := c.BindJSON(&metricsData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		} else {
-			fmt.Printf("Received Metrics: %+v\n", metricsData)
+			//fmt.Printf("Received Metrics: %+v\n", metricsData)
 			c.JSON(http.StatusOK, gin.H{"message": "Metrics data received successfully"})
 			postgresDB.InsertInDB(metricsData)
 		}
@@ -42,7 +44,7 @@ func ReceiveJSON() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		} else {
-			fmt.Printf("Received System Info: %+v\n", sysinfoData)
+			//fmt.Printf("Received System Info: %+v\n", sysinfoData)
 			c.JSON(http.StatusOK, gin.H{"message": "System Info data received successfully"})
 			postgresDB.CheckDevicesDB(sysinfoData)
 		}
