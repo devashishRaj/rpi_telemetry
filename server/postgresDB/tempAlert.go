@@ -12,14 +12,6 @@ import (
 func AlertTemp(jsonData dataStruct.MetricsBatch) {
 	deviceMetrics := jsonData.Metrics
 
-	// // Set custom prefix and flags to differentiate alerts
-	// log.SetPrefix("[ALERT] ")
-
-	// //The log.SetFlags function is used to configure the log message format to include the date,
-	// //time, and source file information.
-
-	// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-
 	query :=
 		`
 		SELECT AVG(value) AS avg_temperature

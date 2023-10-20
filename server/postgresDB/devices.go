@@ -58,6 +58,7 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 
 	if err != nil {
 		fmt.Println("Query error in CheckPrimary")
+		log.Println(query)
 		log.Fatalln(err)
 	}
 	if !isOutdated {

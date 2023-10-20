@@ -27,17 +27,22 @@ func ReadConfig() {
 func ConnectDB() {
 	ReadConfig()
 	// connection string
-	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+	psqlConnStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		viper.Get("postgresDB.host"), viper.Get("postgresDB.port"), viper.Get("postgresDB.user"),
 		viper.Get("postgresDB.password"), viper.Get("postgresDB.dbname"),
 		viper.Get("postgresDB.sslmode"))
 
 	// open database
-	db, err := pgxpool.New(context.Background(), psqlconn)
+	db, err := pgxpool.New(context.Background(), psqlConnStr)
 	if err != nil {
-
 		fmt.Println("error in ConnectDB")
+		log.Println(viper.Get("postgresDB.host"),
+			viper.Get("postgresDB.port"),
+			viper.Get("postgresDB.user"),
+			viper.Get("postgresDB.dbname"),
+			viper.Get("postgresDB.sslmode"))
 		log.Fatalln(err)
+
 	}
 	G_dbpool = db
 }

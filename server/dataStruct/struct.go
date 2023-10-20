@@ -8,6 +8,11 @@ type SystemMetrics struct {
 	TimeStamp time.Time
 }
 
+type MetricsBatch struct {
+	MacAddr string
+	Metrics []SystemMetrics
+}
+
 // SystemInfo represents the system information.
 type SystemInfo struct {
 	MacAddress string `json:"MacAddress"`
@@ -17,10 +22,8 @@ type SystemInfo struct {
 	OsType     string `json:"ostype"`
 }
 
-type MetricsBatch struct {
-	MacAddr string
-	Metrics []SystemMetrics
-}
+//
+// left for reference purpose .
 
 // type SystemMetrics struct {
 // 	CPUuserLoad float64   `json:"CPUuserLoad"`

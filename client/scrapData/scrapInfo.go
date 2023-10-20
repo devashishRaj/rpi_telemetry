@@ -74,7 +74,7 @@ func SendSysInfo() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
+
 		sendData.HttpPost(ScrapSysInfo(), "sysinfo")
 	}
 }

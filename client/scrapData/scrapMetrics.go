@@ -1,7 +1,6 @@
 package scraprpi
 
 import (
-	//"fmt"
 	"math"
 	"os/exec"
 	"regexp"
@@ -156,12 +155,6 @@ func SendAccumulatedMetrics() {
 			MacAddr: GetmacAddr(),
 			Metrics: accumulatedMetrics,
 		}
-
-		// // Print the accumulated metrics data
-		// fmt.Println("Accumulated Metrics Data:")
-		// for _, metric := range accumulatedMetrics {
-		//     fmt.Printf("Name: %s, Value: %.2f, Timestamp: %s\n", metric.Name, metric.Value, metric.TimeStamp)
-		// }
 
 		sendData.HttpPost(metricsData, "metrics")
 

@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var metricsMutex sync.Mutex
 var sysinfoMutex sync.Mutex
 
 func ReceiveJSON() {
@@ -25,10 +24,10 @@ func ReceiveJSON() {
 
 	r.POST("/tele/metrics", func(c *gin.Context) {
 		// Todo(check plugin for fuzzy todo tag) add function to check
-		metricsMutex.Lock()
-		defer metricsMutex.Unlock()
 		if err := c.BindJSON(&metricsData); err != nil {
+			log.Println()
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			log.Println(metricsData)
 			return
 		} else {
 			//fmt.Printf("Received Metrics: %+v\n", metricsData)
@@ -41,6 +40,7 @@ func ReceiveJSON() {
 		sysinfoMutex.Lock()
 		defer sysinfoMutex.Unlock()
 		if err := c.BindJSON(&sysinfoData); err != nil {
+			log.Println(sysinfoData)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		} else {
@@ -52,4 +52,5 @@ func ReceiveJSON() {
 
 	err := r.Run(":8080")
 	log.Fatalln(err)
+
 }

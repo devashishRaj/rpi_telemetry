@@ -7,28 +7,14 @@ import (
 	"io"
 	"log"
 	"net/http"
-	//"github.com/spf13/viper"
 )
-
-// func ReadConfig() {
-// 	viper.AddConfigPath("$HOME/.config/rpiTele/")
-// 	viper.AddConfigPath(".")
-// 	viper.SetConfigName("config") // Register config file name (no extension)
-// 	viper.SetConfigType("json")   // Look for specific type
-// 	err := viper.ReadInConfig()
-// 	viper.WatchConfig()
-// 	if err != nil {
-// 		log.Fatalf("Error reading config file: %s", err)
-// 	}
-// }
 
 type Response struct {
 	Message string `json:"message"`
 }
 
 func HttpPost(input interface{}, dataflag string) {
-	//ReadConfig()
-	//serverURL = viper.GetString("server")
+
 	jsonData, err := json.Marshal(input)
 	if err != nil {
 		log.Fatalln(err)
@@ -62,44 +48,3 @@ func HttpPost(input interface{}, dataflag string) {
 	defer resp.Body.Close()
 
 }
-
-// func sendInterval() {
-// 	ticker1 := time.NewTicker(10 * time.Second)
-// 	defer ticker1.Stop()
-// 	for range ticker1.C {
-// 		scrapRpi.CalculateCPUUsage("user", 2)
-// 		scrapRpi.GetMemoryValue("total")
-// 		scrapRpi.GetMemoryValue("free")
-// 		scrapRpi.GetInternalTemperature()
-// 		scrapRpi.TotalProcesses()
-// 	}
-// 	ticker2 := time.NewTicker(30 * time.Second)
-// 	defer ticker1.Stop()
-// 	for range ticker2.C {
-// 		scrapRpi.GetMemoryValue("total")
-// 		scrapRpi.GetMemoryValue("free")
-// 		scrapRpi.GetInternalTemperature()
-// 		scrapRpi.TotalProcesses()
-// 	}
-
-// }
-
-// func SendMetrics(metricsData dataStruct.MetricsBatch) {
-// 	// ticker := time.NewTicker(10 * time.Second)
-// 	// defer ticker.Stop()
-
-// 	// for range ticker.C {
-// 	// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
-// 	httpPost(metricsData, "metrics")
-// 	//}
-// }
-
-// func SendSysInfo() {
-// 	ticker := time.NewTicker(25 * time.Second)
-// 	defer ticker.Stop()
-
-// 	for range ticker.C {
-// 		// scrapRpi.G_systemInfo = scrapRpi.StartScraping()
-// 		httpPost(scrapData.ScrapSysInfo(), "sysinfo")
-// 	}
-// }
