@@ -104,7 +104,7 @@ The above command includes three flags:
 
 some queries for grafana :
 
-#### schema.sql file 
+#### schema.sql file sample  
 
 ```
 -- Create schema
@@ -117,17 +117,6 @@ CREATE TABLE telemetry.devices (
     Hostname VARCHAR(25),
     OSType VARCHAR(25),
     TotalMemory INT
-);
-
--- Create the rpi4b_metrics table
-CREATE TABLE telemetry.rpi4b_metrics (
-    MacAddress VARCHAR(25),
-    CPUuserLoad DOUBLE PRECISION,
-    MemoryUsage INT,
-    Temperature REAL,
-    TotalProcesses INT,
-    TimeStamp TIMESTAMP UNIQUE,
-    CONSTRAINT fk_MacAddress FOREIGN KEY (MacAddress) REFERENCES telemetry.devices(MacAddress)
 );
 
 -- Create the rpi_temp_alert table
@@ -150,6 +139,30 @@ select  telemetry.rpi4b_metrics.temperature , telemetry.rpi4b_metrics.timestamp 
 FROM telemetry.rpi4b_metrics
 FULL JOIN telemetry.devices
 ON telemetry.rpi4b_metrics.MacAddress = telemetry.devices.MacAddress ;
+
+SELECT
+  m.name,
+  m.value,
+  m.timestamp as time
+FROM telemetry.metrics_new AS m
+INNER JOIN telemetry.devices AS d
+ON m.macaddress = d.macaddress
+WHERE d.macaddress = '$macAd'
+  AND m.name IN ('CPUuserLoad', 'Temperature')
+ORDER BY m.timestamp;
+
+SELECT
+  m.name,
+  m.value,
+  m.timestamp as time
+FROM
+  telemetry.metrics_new AS m
+  INNER JOIN telemetry.devices AS d ON m.macaddress = d.macaddress
+WHERE
+  d.macaddress = '$macAd'
+  AND m.name IN ('ramusage')
+ORDER BY
+  m.timestamp;
 
 ```
 #### NOTE : here 'macAd' is a variable , present in settings menu (look for gear icon) in created dashboard this can used for per device data
