@@ -14,28 +14,30 @@ func InsertInDB(jsonData dataStruct.MetricsBatch) {
 		log.Fatal("jsonData is empty")
 	}
 
+	// Check if data has been collected for 1 minute
+	// If 1 minute has passed, perform the bulk insert
+
+	// Create a 2D slice to hold all the rows from the accumulated data
 	var rows [][]interface{}
 	for _, metric := range jsonData.Metrics {
 		rows = append(rows,
 			[]interface{}{jsonData.MacAddr, metric.Name, metric.Value, metric.TimeStamp})
 	}
-	// _, err := G_dbpool.Exec(context.Background(),
-	// 	`COPY telemetry.metrics_new (macaddress, name, value, timestamp) FROM stdin`,
-	// 	pgx.CopyFromRows(rows))
-	// if err != nil {
-	// 	log.Println(rows)
-	// 	log.Fatal("Error during bulk insert:", err)
-	// }
+
+	// Perform the bulk insert as before
 	copyCount, err := G_dbpool.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"telemetry", "metrics_new"},
 		[]string{"macaddress", "name", "value", "timestamp"},
 		pgx.CopyFromRows(rows),
 	)
+
 	if err != nil {
 		log.Println(copyCount)
+		log.Println(rows)
 		log.Fatal(err)
 	}
-
+	log.Println(rows)
 	AlertTemp(jsonData)
+
 }
