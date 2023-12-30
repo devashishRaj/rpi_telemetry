@@ -70,7 +70,11 @@ func ScrapSysInfo() datastruct.SystemInfo {
 }
 
 func SendSysInfo() {
-	ticker := time.NewTicker(25 * time.Second)
+	//for first time as soon a program start to check if the device on which this program is running
+	// exists in telemetry.devices database or not otherwise to add it instantly before metrics
+	// is send
+	//sendData.HttpPost(ScrapSysInfo(), "sysinfo")
+	ticker := time.NewTicker(300 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
