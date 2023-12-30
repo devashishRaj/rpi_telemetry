@@ -104,6 +104,18 @@ where timestamp > NOW() - INTERVAL '10 minute';)
 Select macaddress
 from telemetry.devices
 
+```
+UTC to IST 
+
+```sql
+
+SELECT *, timestamp AT TIME ZONE 'UTC' + INTERVAL '5 hours 30 minutes' AS Indian_timestamp
+FROM telemetry.metrics_new
+ORDER BY Indian_timestamp DESC;
+
+SELECT *, timestamp AT TIME ZONE 'Asia/Kolkata' AS ist_timestamp
+FROM telemetry.metrics_new
+ORDER BY ist_timestamp DESC;
 
 ```
 
