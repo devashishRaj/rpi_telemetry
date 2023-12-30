@@ -1,4 +1,6 @@
-#### Docker file present in repo requires a ".env" file to pass information like login credentials , paths , example of .env file is :
+docker-compose.yml present in repo requires a ".env" file to pass information like login credentials and paths
+
+> example of .env file is :
 
 ```
 

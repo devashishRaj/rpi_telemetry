@@ -1,69 +1,37 @@
-﻿### Collect system stats from raspberry and save it into a dockerized postgres database :
-Reference : https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql
+﻿> Grafana dashboard to show system stats of various IoT devices using golang , docker and postgres.
+![Grafana dashboard](pictures/dashboard.png)
+### SetUp
 
+#### Section 1 : Docker 
 
-__NOTE__ : 
-make sure postgres is set up properly and viper config file is setup properly for right credentials and network info is present to make connection to database , refer Postgres.MD and https://github.com/spf13/viper
-
-######IMPORTANT PART : https://github.com/spf13/viper#getting-values-from-viper
-
-
-### viper guide 
-
-**cd into server folder** 
-```
-makedir -p local/.config
-```
-cd into config 
-```
-vim config.json
-```
-
-sample json format for server side
-```
-{
-    "postgresDB": {
-        "host": "localhost",
-        "port": "5432",
-        "user": "xyz",
-        "password": "xyz",
-        "dbname": "xyz" ,
-        "sslmode": "disable"
-    }
-}
+1. [Install Docker](https://docs.docker.com/get-docker/) and if you are new to dockere use this [guide](https://docs.docker.com/guides/get-started/)
+2. make a directry and cd into it via terminal and clone the repo into it  via following command
 
 ```
-
-tip : use zerotier for multiple devices existing on different lans for this project
-      for to get a geoloaction visulization in grafana , you article mentioned below :
-          https://medium.com/@tomjohnburton/visualising-a-distributed-network-c36871da52af
-
-
-__Setup docke .env file refer to dockerfile.md__
-
-#### step 1 : 
+git clone https://github.com/devashishRaj/rpi_telemetry.git
 ```
-git clone https://github.com/devashishRaj/rip_telemetry.git
-```
+3. create a .env file for login credentials and setting paths, [Guide](envFileGuide.md) 
 
-**then cd into client folder:**
-
-
-
-#### step 2 : build executable , 
-```
-make build-all 
-```
-#### step 3: transfer build file to your raspy , eg: use scp if it's on same network 
-```
-scp <path to executable> <username>@<ip address>:<path to  save file on raspberry >
-```
-#### step 4 : run file on raspberry , ssh or login into raspi
+4. now run " docker compose up -d " (only for first time later use docker compose start)
 
 ```
-<path to file>/<file name>
-```
+docker compose up -d : to create and start container(s) as background processes   
+and you get your terminal back.
 
-#### step 5 : run main.go on server side where database is setup , cd into server folder , if you have air live relaoad for goalng 
-#### cd int server folder and type  " air "
+docker compose down : stop and delete container(s)
+
+docker compose start : to start existing container(s)
+
+docker compose stop : to pause the running container(s)
+
+```
+5. open a new tab in terminal and run "docker exec -it postgres bash "   
+to start an interactive shell session inside the running "postgres" container.
+
+![Interactive Shell](pictures/interactiveSHELL.png)
+
+6. now type "psql -d POSTGRES_DB -U POSTGRES_USER -W " , replace the placeholders with what you have   
+filled in .env file
+
+[Reference](https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql)
 
