@@ -1,4 +1,4 @@
-name: Lint 
+name: server
 
 on:
   push:
@@ -17,10 +17,8 @@ jobs:
         with:
           go-version: '1.21.x'
 
-      - name: client build
-        run: |
-         cd server 
-         go build main.go
+      - name: server build
+        run: go build server/main.go
          
       #- name: Lint
        # run:  ./check.sh
