@@ -1,4 +1,4 @@
-name: server
+name: build
 
 on:
   push:
@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '1.21.x'
+      - name: present director 
+        run: ls -a
       - name: go mod tidy
         run: go mod tidy
       - name: install golang cli
