@@ -1,13 +1,15 @@
-﻿> Go program to collect system stats from IoT devices and save into postgres Database.
+> Go program to collect system stats from IoT devices and save into postgres Database.
 ##### Windows not supported
 - Integrated Grafana and PostgreSQL via Docker for efficient data storage and real-time monitoring.
 - Ensured data integrity and concurrency using Mutex and Goroutines. 
 - Leveraged `pgx` for optimized PostgreSQL connectivity. 
 
-![Grafana dashboard](misc/pictures/dashboard.png)
+![Grafana dashboard](pictures/dashboard.png)
 ### SetUp
 
-1. [Install Docker](https://docs.docker.com/get-docker/) and if you are new to docker use this [guide](https://docs.docker.com/guides/get-started/)
+#### Section 1 : Docker 
+
+1. [Install Docker](https://docs.docker.com/get-docker/) and if you are new to dockere use this [guide](https://docs.docker.com/guides/get-started/)
 2. make a directry and cd into it via terminal and clone the repo into it  via following command
 
 ```
@@ -39,7 +41,7 @@ filled in .env file , now you are in that database .
 7. type "\d+ telemetry.*;" to see if the schema.sql was processed during first-time postgress  
 execution or not .
 
-![show schema](misc/pictures/showSchema.png)
+![show schema](pictures/showSchema.png)
 
 > if the output matchs schema file , go ahead else run "docker compose down" and start again 
 
@@ -91,8 +93,8 @@ vim config.json or your favourite editor
 
 If all goes right you will see output in both tabs similar to this.
 
-![server](misc/pictures/server.png)
-![client](misc/pictures/client.png)
+![server](pictures/server.png)
+![client](pictures/client.png)
 
 9. Go back to postgres tab in terminal and run 
 
@@ -125,6 +127,4 @@ Resources for Grafana :
 - https://grafana.com/docs/grafana/latest/datasources/postgres/
 
 [Reference](https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql)
-
-__TIP__ : tip : use zerotier for multiple devices existing on different networks 
 
