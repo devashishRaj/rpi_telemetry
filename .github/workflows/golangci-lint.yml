@@ -14,8 +14,6 @@ permissions:
 jobs:
   golangci:
     name: lint
-    strategy:
-      matrix: { dir: ['./client/...', './server/...'] }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,10 +27,11 @@ jobs:
           # Require: The version of golangci-lint to use.
           # When `install-mode` is `binary` (default) the value can be v1.2 or v1.2.3 or `latest` to use the latest version.
           # When `install-mode` is `goinstall` the value can be v1.2.3, `latest`, or the hash of a commit.
-          version: v1.54
+          version: latest
+          args: --config ./.github/golangci.yml ./... ./server/... ./client/...
 
           # Optional: working directory, useful for monorepos
-          working-directory: ${{ matrix.dir }}
+          # working-directory: ./${{ matrix.dir }}/
 
           # Optional: golangci-lint command line arguments.
           #
