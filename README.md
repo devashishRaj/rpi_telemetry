@@ -4,7 +4,7 @@
 - Ensured data integrity and concurrency using Mutex and Goroutines. 
 - Leveraged `pgx` for optimized PostgreSQL connectivity. 
 
-![Grafana dashboard](pictures/dashboard.png)
+![Grafana dashboard](misc/pictures/dashboard.png)
 ### SetUp
 
 #### Section 1 : Docker 
@@ -41,7 +41,7 @@ filled in .env file , now you are in that database .
 7. type "\d+ telemetry.*;" to see if the schema.sql was processed during first-time postgress  
 execution or not .
 
-![show schema](pictures/showSchema.png)
+![show schema](misc/pictures/showSchema.png)
 
 > if the output matchs schema file , go ahead else run "docker compose down" and start again 
 
@@ -93,8 +93,8 @@ vim config.json or your favourite editor
 
 If all goes right you will see output in both tabs similar to this.
 
-![server](pictures/server.png)
-![client](pictures/client.png)
+![server](misc/pictures/server.png)
+![client](misc/pictures/client.png)
 
 9. Go back to postgres tab in terminal and run 
 

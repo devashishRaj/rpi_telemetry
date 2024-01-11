@@ -1,4 +1,6 @@
-*.sh
+
 *.zsh
 .env
 *.log
+config.json
+
