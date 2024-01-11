@@ -4,7 +4,7 @@
 - Ensured data integrity and concurrency using Mutex and Goroutines. 
 - Leveraged `pgx` for optimized PostgreSQL connectivity. 
 
-![Grafana dashboard](pictures/dashboard.png)
+![Grafana dashboard](misc/pictures/dashboard.png)
 ### SetUp
 
 1. [Install Docker](https://docs.docker.com/get-docker/) and if you are new to docker use this [guide](https://docs.docker.com/guides/get-started/)
@@ -13,7 +13,7 @@
 ```
 git clone https://github.com/devashishRaj/rpi_telemetry.git
 ```
-3. create a .env file for login credentials and setting paths, [Guide](envFileGuide.md) 
+3. create a .env file for login credentials and setting paths, [Guide](misc/envFileGuide.md) 
 
 4. now run " docker compose up -d " (only for first time later use docker compose start)
 
@@ -31,7 +31,7 @@ docker compose stop : to pause the running container(s)
 5. open a new tab in terminal and run "docker exec -it postgres bash "   
 to start an interactive shell session inside the running "postgres" container.
 
-![Interactive Shell](pictures/interactiveSHELL.png)
+![Interactive Shell](misc/pictures/interactiveSHELL.png)
 
 6. now type "psql -d POSTGRES_DB -U POSTGRES_USER -W " , replace the placeholders with what you have   
 filled in .env file , now you are in that database .
@@ -39,7 +39,7 @@ filled in .env file , now you are in that database .
 7. type "\d+ telemetry.*;" to see if the schema.sql was processed during first-time postgress  
 execution or not .
 
-![show schema](pictures/showSchema.png)
+![show schema](misc/pictures/showSchema.png)
 
 > if the output matchs schema file , go ahead else run "docker compose down" and start again 
 
@@ -91,8 +91,8 @@ vim config.json or your favourite editor
 
 If all goes right you will see output in both tabs similar to this.
 
-![server](pictures/server.png)
-![client](pictures/client.png)
+![server](misc/pictures/server.png)
+![client](misc/pictures/client.png)
 
 9. Go back to postgres tab in terminal and run 
 
