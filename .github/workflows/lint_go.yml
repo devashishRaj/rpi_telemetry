@@ -18,9 +18,8 @@ jobs:
           go-version: '1.21.x'
 
       - name: client build
-        run: |
-         cd client
-         make build-all
+        run: go build -v ./...
+         
       #- name: Lint
        # run:  ./check.sh
       #- name: Test
