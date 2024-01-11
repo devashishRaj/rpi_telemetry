@@ -31,7 +31,7 @@ jobs:
           # args:  ./server ./client
 
           # Optional: working directory, useful for monorepos
-          # working-directory: server
+          working-directory: server
 
           # Optional: golangci-lint command line arguments.
           #
