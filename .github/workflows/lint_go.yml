@@ -19,8 +19,8 @@ jobs:
 
       - name: install golang cli
         run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-      - name: check installation 
-        run: ./check.sh
+      - name: check installation and lint
+        run: ./check.sh 
 
       #- name: Lint
        # run:  ./check.sh
