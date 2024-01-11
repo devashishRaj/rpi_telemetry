@@ -14,6 +14,8 @@ permissions:
 jobs:
   golangci:
     name: lint
+    strategy:
+      matrix: { dir: ['./client/...', './server/...'] }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,7 +32,7 @@ jobs:
           version: v1.54
 
           # Optional: working directory, useful for monorepos
-          # working-directory: somedir
+          working-directory: ${{ matrix.dir }}
 
           # Optional: golangci-lint command line arguments.
           #
