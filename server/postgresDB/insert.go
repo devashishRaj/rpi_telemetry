@@ -3,6 +3,7 @@ package postgresDB
 import (
 	"context"
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
+	handle "devashishRaj/rpi_telemetry/server/handleError"
 	"log"
 
 	"github.com/jackc/pgx/v5"
@@ -31,13 +32,12 @@ func InsertInDB(jsonData dataStruct.MetricsBatch) {
 		[]string{"macaddress", "name", "value", "timestamp"},
 		pgx.CopyFromRows(rows),
 	)
-
 	if err != nil {
+		handle.CheckError("Error in bulk insert", err)
 		log.Println(copyCount)
 		log.Println(rows)
 		log.Fatal(err)
 	}
-	log.Println(rows)
 	AlertTemp(jsonData)
 
 }

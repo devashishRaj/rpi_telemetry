@@ -3,8 +3,7 @@ package postgresDB
 import (
 	"context"
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
-	"fmt"
-	"log"
+	handle "devashishRaj/rpi_telemetry/server/handleError"
 
 	_ "github.com/jackc/pgx/v5"
 )
@@ -17,12 +16,8 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 		`)
 	var isPresent bool
 	err := G_dbpool.QueryRow(context.Background(), query, jsonData.MacAddress).Scan(&isPresent)
+	handle.CheckError("Query error in CheckDevicesDB ", err)
 
-	if err != nil {
-		fmt.Println("Query error in CheckDevicesDB")
-		log.Fatalln(err)
-
-	}
 	if !isPresent {
 		_, err := G_dbpool.Exec(context.Background(), `
 		INSERT INTO telemetry.devices (MacAddress , privateIP ,  publicIP , hostname , 
@@ -30,11 +25,7 @@ func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
 		VALUES ($1, $2, $3, $4, $5)`,
 			jsonData.MacAddress, jsonData.PrivateIP, jsonData.PublicIP,
 			jsonData.Hostname, jsonData.OsType)
-		if err != nil {
-			fmt.Println("Query error in CheckDevicesDB")
-			log.Fatalln(err)
-
-		}
+		handle.CheckError("Query error when insert new device , func: CheckDevicesDB", err)
 
 	} else {
 		CheckPrimaryKey(jsonData)
@@ -56,11 +47,7 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 		jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType).Scan(&isOutdated)
 
-	if err != nil {
-		fmt.Println("Query error in CheckPrimary")
-		log.Println(query)
-		log.Fatalln(err)
-	}
+	handle.CheckError("Error in Check Primary key ", err)
 	if !isOutdated {
 		updateDeviceInfo(jsonData)
 	}
@@ -75,11 +62,6 @@ func updateDeviceInfo(jsonData dataStruct.SystemInfo) {
 		WHERE MacAddress = $5`,
 		jsonData.PrivateIP, jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType, jsonData.MacAddress)
-
-	if err != nil {
-		fmt.Println("Query error in Update device info")
-		log.Fatalln(err)
-
-	}
+	handle.CheckError("Query error in Update device info", err)
 
 }

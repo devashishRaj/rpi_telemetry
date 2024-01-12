@@ -3,7 +3,8 @@ package postgresDB
 import (
 	"context"
 	"fmt"
-	"log"
+
+	handle "devashishRaj/rpi_telemetry/server/handleError"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -17,11 +18,7 @@ func ReadConfig() {
 	viper.SetConfigName("config") // Register config file name (no extension)
 	viper.SetConfigType("json")   // Look for specific type
 	err := viper.ReadInConfig()
-	if err != nil {
-
-		fmt.Println("error in ConnectDB")
-		log.Fatalln(err)
-	}
+	handle.CheckError("unable to read config , func: ReadConfig", err)
 }
 
 func ConnectDB() {
@@ -34,15 +31,6 @@ func ConnectDB() {
 
 	// open database
 	db, err := pgxpool.New(context.Background(), psqlConnStr)
-	if err != nil {
-		fmt.Println("error in ConnectDB")
-		log.Println(viper.Get("postgresDB.host"),
-			viper.Get("postgresDB.port"),
-			viper.Get("postgresDB.user"),
-			viper.Get("postgresDB.dbname"),
-			viper.Get("postgresDB.sslmode"))
-		log.Fatalln(err)
-
-	}
+	handle.CheckError("Unable to connect to DB , func: ConnectDB", err)
 	G_dbpool = db
 }

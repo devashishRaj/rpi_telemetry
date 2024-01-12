@@ -2,6 +2,7 @@ package jsonHandler
 
 import (
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
+	handle "devashishRaj/rpi_telemetry/server/handleError"
 	postgresDB "devashishRaj/rpi_telemetry/server/postgresDB"
 
 	//"fmt"
@@ -51,6 +52,6 @@ func ReceiveJSON() {
 	})
 
 	err := r.Run(":8080")
-	log.Fatalln(err)
+	handle.CheckError("Error when conencting to port 8080", err)
 
 }

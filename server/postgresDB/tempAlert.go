@@ -5,8 +5,7 @@ import (
 	"database/sql"
 
 	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
-	"fmt"
-	"log"
+	handle "devashishRaj/rpi_telemetry/server/handleError"
 )
 
 func AlertTemp(jsonData dataStruct.MetricsBatch) {
@@ -22,12 +21,7 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 		`
 	var avgTemperature sql.NullFloat64
 	err := G_dbpool.QueryRow(context.Background(), query, jsonData.MacAddr).Scan(&avgTemperature)
-	if err != nil {
-
-		fmt.Println("calc query error in AvgTemp")
-		log.Fatalln(err)
-
-	}
+	handle.CheckError("Error executing avgTemp query", err)
 
 	if avgTemperature.Valid {
 		if avgTemperature.Float64 > 44 {
@@ -38,15 +32,7 @@ func AlertTemp(jsonData dataStruct.MetricsBatch) {
 				deviceMetrics[0].Value,
 				deviceMetrics[0].TimeStamp)
 
-			if err != nil {
-
-				fmt.Println("error in InsertInDB , isnertoin query")
-				log.Fatalln(err)
-
-			} else {
-				log.Printf("Average temperature within the last 30 seconds of %s : %.2f\n",
-					jsonData.MacAddr, avgTemperature.Float64)
-			}
+			handle.CheckError("error inserting avgTemp above threshold in DB", err)
 		}
 
 	}
