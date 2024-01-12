@@ -6,33 +6,39 @@ import (
 	handle "devashishRaj/rpi_telemetry/server/handleError"
 
 	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func CheckDevicesDB(jsonData dataStruct.SystemInfo) {
+func CheckDevicesDB(db *pgxpool.Pool, jsonData dataStruct.SystemInfo) {
 	query := (`
 		SELECT EXISTS (SELECT macaddress 
 			  FROM telemetry.devices 
 			WHERE  macaddress = $1 );
 		`)
 	var isPresent bool
-	err := G_dbpool.QueryRow(context.Background(), query, jsonData.MacAddress).Scan(&isPresent)
+	err := db.QueryRow(context.Background(), query, jsonData.MacAddress).Scan(&isPresent)
 	handle.CheckError("Query error in CheckDevicesDB ", err)
 
 	if !isPresent {
-		_, err := G_dbpool.Exec(context.Background(), `
-		INSERT INTO telemetry.devices (MacAddress , privateIP ,  publicIP , hostname , 
-		ostype )
-		VALUES ($1, $2, $3, $4, $5)`,
-			jsonData.MacAddress, jsonData.PrivateIP, jsonData.PublicIP,
-			jsonData.Hostname, jsonData.OsType)
-		handle.CheckError("Query error when insert new device , func: CheckDevicesDB", err)
+		InsertDevice(db, jsonData)
 
 	} else {
-		CheckPrimaryKey(jsonData)
+		CheckPrimaryKey(db, jsonData)
 	}
 }
 
-func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
+func InsertDevice(db *pgxpool.Pool, jsonData dataStruct.SystemInfo) {
+	_, err := db.Exec(context.Background(), `
+		INSERT INTO telemetry.devices (MacAddress , privateIP ,  publicIP , hostname , 
+		ostype )
+		VALUES ($1, $2, $3, $4, $5)`,
+		jsonData.MacAddress, jsonData.PrivateIP, jsonData.PublicIP,
+		jsonData.Hostname, jsonData.OsType)
+	handle.CheckError("Query error when insert new device , func: CheckDevicesDB", err)
+
+}
+
+func CheckPrimaryKey(db *pgxpool.Pool, jsonData dataStruct.SystemInfo) {
 	query := (`
 		SELECT EXISTS (SELECT MacAddress , privateIP ,  publicIP , hostname , ostype 
 			FROM telemetry.devices 
@@ -43,20 +49,20 @@ func CheckPrimaryKey(jsonData dataStruct.SystemInfo) {
 			ostype = $5 );
 		`)
 	var isOutdated bool
-	err := G_dbpool.QueryRow(context.Background(), query, jsonData.MacAddress, jsonData.PrivateIP,
+	err := db.QueryRow(context.Background(), query, jsonData.MacAddress, jsonData.PrivateIP,
 		jsonData.PublicIP,
 		jsonData.Hostname, jsonData.OsType).Scan(&isOutdated)
 
 	handle.CheckError("Error in Check Primary key ", err)
 	if !isOutdated {
-		updateDeviceInfo(jsonData)
+		updateDeviceInfo(db, jsonData)
 	}
 
 }
 
-func updateDeviceInfo(jsonData dataStruct.SystemInfo) {
+func updateDeviceInfo(db *pgxpool.Pool, jsonData dataStruct.SystemInfo) {
 
-	_, err := G_dbpool.Exec(context.Background(),
+	_, err := db.Exec(context.Background(),
 		`UPDATE telemetry.devices
 		SET privateip = $1, publicip = $2, hostname = $3, ostype = $4
 		WHERE MacAddress = $5`,

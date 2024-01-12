@@ -8,9 +8,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InsertInDB(jsonData dataStruct.MetricsBatch) {
+func InsertInDB( db *pgxpool.Pool ,  jsonData dataStruct.MetricsBatch) {
 	if len(jsonData.Metrics) == 0 {
 		log.Fatal("jsonData is empty")
 	}
@@ -26,7 +27,7 @@ func InsertInDB(jsonData dataStruct.MetricsBatch) {
 	}
 
 	// Perform the bulk insert as before
-	copyCount, err := G_dbpool.CopyFrom(
+	copyCount, err := db.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"telemetry", "metrics_new"},
 		[]string{"macaddress", "name", "value", "timestamp"},
@@ -38,6 +39,6 @@ func InsertInDB(jsonData dataStruct.MetricsBatch) {
 		log.Println(rows)
 		log.Fatal(err)
 	}
-	AlertTemp(jsonData)
+	AlertTemp(db , jsonData)
 
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var G_dbpool *pgxpool.Pool
+//var G_dbpool *pgxpool.Pool
 
 func ReadConfig() {
 	viper.AddConfigPath("./local/.configs")
@@ -21,7 +21,7 @@ func ReadConfig() {
 	handle.CheckError("unable to read config , func: ReadConfig", err)
 }
 
-func ConnectDB() {
+func ConnectDB() *pgxpool.Pool {
 	ReadConfig()
 	// connection string
 	psqlConnStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -32,5 +32,6 @@ func ConnectDB() {
 	// open database
 	db, err := pgxpool.New(context.Background(), psqlConnStr)
 	handle.CheckError("Unable to connect to DB , func: ConnectDB", err)
-	G_dbpool = db
+	handle.CheckError("Database connection health", err)
+	return db
 }

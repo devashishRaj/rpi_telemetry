@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var sysinfoMutex sync.Mutex
@@ -18,13 +19,15 @@ var sysinfoMutex sync.Mutex
 func ReceiveJSON() {
 	var metricsData dataStruct.MetricsBatch
 	var sysinfoData dataStruct.SystemInfo
+	var db *pgxpool.Pool  = postgresDB.ConnectDB()
+	
 
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
 
 	r.POST("/tele/metrics", func(c *gin.Context) {
-		// Todo(check plugin for fuzzy todo tag) add function to check
+		
 		if err := c.BindJSON(&metricsData); err != nil {
 			log.Println()
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -33,7 +36,7 @@ func ReceiveJSON() {
 		} else {
 			//fmt.Printf("Received Metrics: %+v\n", metricsData)
 			c.JSON(http.StatusOK, gin.H{"message": "Metrics data received successfully"})
-			postgresDB.InsertInDB(metricsData)
+			postgresDB.InsertInDB(db,metricsData)
 		}
 	})
 
@@ -47,10 +50,10 @@ func ReceiveJSON() {
 		} else {
 			//fmt.Printf("Received System Info: %+v\n", sysinfoData)
 			c.JSON(http.StatusOK, gin.H{"message": "System Info data received successfully"})
-			postgresDB.CheckDevicesDB(sysinfoData)
+			postgresDB.CheckDevicesDB(db ,sysinfoData)
 		}
 	})
-
+	defer db.Close()
 	err := r.Run(":8080")
 	handle.CheckError("Error when conencting to port 8080", err)
 
