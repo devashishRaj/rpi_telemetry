@@ -11,7 +11,7 @@ permissions:
   # pull-requests: read
 
 jobs:
-  golangci:
+  goCI:
     name: lint_test_build
     runs-on: ubuntu-latest
     steps:

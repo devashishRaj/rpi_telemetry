@@ -1,6 +1,6 @@
 
 *.zsh
-.env
+*.env
 *.log
 config.json
 
