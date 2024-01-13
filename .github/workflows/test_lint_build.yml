@@ -1,4 +1,4 @@
-name: lint
+name: lint_test_build
 on:
   push:
     branches:
