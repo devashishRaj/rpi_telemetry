@@ -6,13 +6,7 @@ build-arm64:
 
 build-all: build-arm build-arm64
 
-tidy:
-	go mod tidy
-
 .PHONY: build-arm build-arm64 build-all check
 
-# Add a dependency for the build targets to run the tidy target
-build-arm: tidy
-build-arm64: tidy
-build-all: tidy
+
 
