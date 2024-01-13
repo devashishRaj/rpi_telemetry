@@ -1,7 +1,6 @@
 package scraprpi
 
 import (
-	"fmt"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -47,7 +46,7 @@ func GetPublicIP() string {
 
 	pubAddress := strings.TrimSpace(string(output))
 	pubAddress = strings.TrimRight(pubAddress, "\u0000")
-	fmt.Println(pubAddress)
+	//fmt.Println(pubAddress)
 	return pubAddress
 }
 
@@ -70,10 +69,6 @@ func ScrapSysInfo() datastruct.SystemInfo {
 }
 
 func SendSysInfo() {
-	//for first time as soon a program start to check if the device on which this program is running
-	// exists in telemetry.devices database or not otherwise to add it instantly before metrics
-	// is send
-	//sendData.HttpPost(ScrapSysInfo(), "sysinfo")
 	ticker := time.NewTicker(300 * time.Second)
 	defer ticker.Stop()
 

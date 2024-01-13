@@ -108,7 +108,7 @@ func TotalProcesses() {
 
 // MetricInterval sets up periodic metric collection.
 func MetricInterval() {
-	ticker1 := time.NewTicker(10 * time.Second)
+	ticker1 := time.NewTicker(3 * time.Second)
 	go func() {
 		for range ticker1.C {
 			CalculateCPUUsage("user", 2)

@@ -4,7 +4,7 @@
 - Ensured data integrity and concurrency using Mutex and Goroutines. 
 - Leveraged `pgx` for optimized PostgreSQL connectivity. 
 
-![Grafana dashboard](misc/pictures/dashboard.png)
+![Grafana dashboard](misc/pictures/rpiDashboard.gif)
 ### SetUp
 
 #### Section 1 : Docker 
@@ -81,8 +81,7 @@ vim config.json or your favourite editor
 
 ```json
 {
-    "systemInfo": "http://xyz:8080/tele/sysinfo",
-    "systemMetrics": "http://xyz:8080/tele/metrics"
+    "baseURL": "http://xyz:8080"
 }
 
 ```
