@@ -154,7 +154,7 @@ func SendAccumulatedMetrics() {
 			Metrics: accumulatedMetrics,
 		}
 
-		sendData.HttpPost(metricsData, "metrics")
+		sendData.UrlHandler(metricsData, "metrics")
 
 		// Clear the accumulated metrics after sending
 		accumulatedMetrics = nil

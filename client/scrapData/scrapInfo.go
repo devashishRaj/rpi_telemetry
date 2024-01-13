@@ -74,6 +74,6 @@ func SendSysInfo() {
 
 	for range ticker.C {
 
-		sendData.HttpPost(ScrapSysInfo(), "sysinfo")
+		sendData.UrlHandler(ScrapSysInfo(), "sysinfo")
 	}
 }

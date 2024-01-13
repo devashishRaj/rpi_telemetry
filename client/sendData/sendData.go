@@ -22,25 +22,28 @@ func ReadConfig() {
 	handlerror.CheckError("unable to read config , func: ReadConfig", err)
 }
 
-func HttpPost(input interface{}, dataflag string) {
+func UrlHandler(input interface{}, dataflag string) {
 	ReadConfig()
 
 	jsonData, err := json.Marshal(input)
 	handlerror.CheckError("error during marshal", err)
 
 	var URL string
-	if dataflag == "metrics" {
-
+	switch dataflag {
+	case "metrics":
 		URL = viper.GetString("baseURL") + "/tele/metrics"
-
-	} else if dataflag == "sysinfo" {
-
+		HttpPost(URL, jsonData)
+	case "sysinfo":
 		URL = viper.GetString("baseURL") + "/tele/sysinfo"
+		HttpPost(URL, jsonData)
+	default:
+		log.Fatalln("invalid value in dataFlag")
 	}
+}
 
+func HttpPost(URL string, jsonData []byte) {
 	resp, err := http.Post(URL, "application/json", bytes.NewBuffer(jsonData))
 	handlerror.CheckError("HTTP POST error", err)
 	defer resp.Body.Close()
 	log.Println("Response Status:", resp.Status)
-
 }

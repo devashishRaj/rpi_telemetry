@@ -19,24 +19,22 @@ var sysinfoMutex sync.Mutex
 func ReceiveJSON() {
 	var metricsData dataStruct.MetricsBatch
 	var sysinfoData dataStruct.SystemInfo
-	var db *pgxpool.Pool  = postgresDB.ConnectDB()
-	
+	var db *pgxpool.Pool = postgresDB.ConnectDB()
 
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
 
 	r.POST("/tele/metrics", func(c *gin.Context) {
-		
+
 		if err := c.BindJSON(&metricsData); err != nil {
 			log.Println()
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			log.Println(metricsData)
 			return
 		} else {
 			//fmt.Printf("Received Metrics: %+v\n", metricsData)
 			c.JSON(http.StatusOK, gin.H{"message": "Metrics data received successfully"})
-			postgresDB.InsertInDB(db,metricsData)
+			postgresDB.InsertInDB(db, metricsData)
 		}
 	})
 
@@ -44,13 +42,12 @@ func ReceiveJSON() {
 		sysinfoMutex.Lock()
 		defer sysinfoMutex.Unlock()
 		if err := c.BindJSON(&sysinfoData); err != nil {
-			log.Println(sysinfoData)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		} else {
 			//fmt.Printf("Received System Info: %+v\n", sysinfoData)
 			c.JSON(http.StatusOK, gin.H{"message": "System Info data received successfully"})
-			postgresDB.CheckDevicesDB(db ,sysinfoData)
+			postgresDB.CheckDevicesDB(db, sysinfoData)
 		}
 	})
 	defer db.Close()
