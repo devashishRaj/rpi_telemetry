@@ -20,7 +20,3 @@ func CheckError(context string, err error) {
 	}
 }
 
-func ReutrnMinus(context string, err error) {
-
-	fmt.Printf("Error: %s\n", context)
-}

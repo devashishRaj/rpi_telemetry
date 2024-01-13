@@ -72,7 +72,6 @@ func GetInternalTemperature() {
 	cmd := exec.Command("vcgencmd", "measure_temp")
 	output, err := cmd.Output()
 	if err != nil {
-		handlerror.ReutrnMinus("temp", err)
 		AccumulateMetrics("Temperature", -1)
 	} else {
 		temperature := strings.TrimSpace(string(output))
@@ -95,7 +94,6 @@ func TotalProcesses() {
 	// Capture the command output
 	output, err := cmd.Output()
 	if err != nil {
-		handlerror.ReutrnMinus("TotalProcesses", err)
 		AccumulateMetrics("Temperature", -1)
 	} else {
 		trimmedOutput := strings.TrimSpace(string(output))
