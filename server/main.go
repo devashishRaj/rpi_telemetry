@@ -1,7 +1,7 @@
 package main
 
 import (
-	"devashishRaj/rpi_telemetry/server/jsonHandler"
+	"github.com/devashishRaj/rpi_telemetry/server/jsonHandler"
 	"log"
 )
 

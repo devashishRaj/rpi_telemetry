@@ -1,8 +1,8 @@
 package main
 
 import (
-	scrapData "devashishRaj/rpi_telemetry/client/scrapData"
-	sendData "devashishRaj/rpi_telemetry/client/sendData"
+	scrapData "github.com/devashishRaj/rpi_telemetry/client/scrapData"
+	sendData "github.com/devashishRaj/rpi_telemetry/client/sendData"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	handlerror "devashishRaj/rpi_telemetry/client/Handlerror"
+	handlerror "github.com/devashishRaj/rpi_telemetry/client/Handlerror"
 )
 
 func GetmacAddr() string {

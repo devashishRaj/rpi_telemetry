@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
-	handle "devashishRaj/rpi_telemetry/server/handleError"
+	dataStruct "github.com/devashishRaj/rpi_telemetry/server/dataStruct"
+	handle "github.com/devashishRaj/rpi_telemetry/server/handleError"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

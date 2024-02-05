@@ -2,7 +2,7 @@ package senddata
 
 import (
 	"bytes"
-	"devashishRaj/rpi_telemetry/server/handleError"
+	"github.com/devashishRaj/rpi_telemetry/server/handleError"
 	"encoding/json"
 	"io"
 	"log"

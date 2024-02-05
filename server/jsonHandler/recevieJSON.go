@@ -1,9 +1,9 @@
 package jsonHandler
 
 import (
-	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
-	handle "devashishRaj/rpi_telemetry/server/handleError"
-	postgresDB "devashishRaj/rpi_telemetry/server/postgresDB"
+	dataStruct "github.com/devashishRaj/rpi_telemetry/server/dataStruct"
+	handle "github.com/devashishRaj/rpi_telemetry/server/handleError"
+	postgresDB "github.com/devashishRaj/rpi_telemetry/server/postgresDB"
 
 	//"fmt"
 	"log"

@@ -2,8 +2,8 @@ package postgresDB
 
 import (
 	"context"
-	dataStruct "devashishRaj/rpi_telemetry/server/dataStruct"
-	handle "devashishRaj/rpi_telemetry/server/handleError"
+	dataStruct "github.com/devashishRaj/rpi_telemetry/server/dataStruct"
+	handle "github.com/devashishRaj/rpi_telemetry/server/handleError"
 
 	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

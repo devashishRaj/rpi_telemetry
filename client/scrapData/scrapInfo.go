@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	handlerror "devashishRaj/rpi_telemetry/client/Handlerror"
-	sendData "devashishRaj/rpi_telemetry/client/sendData"
-	datastruct "devashishRaj/rpi_telemetry/server/dataStruct"
+	handlerror "github.com/devashishRaj/rpi_telemetry/client/Handlerror"
+	sendData "github.com/devashishRaj/rpi_telemetry/client/sendData"
+	datastruct "github.com/devashishRaj/rpi_telemetry/server/dataStruct"
 )
 
 func Gethostnmae() string {

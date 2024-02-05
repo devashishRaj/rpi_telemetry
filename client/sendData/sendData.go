@@ -2,7 +2,7 @@ package senddata
 
 import (
 	"bytes"
-	handlerror "devashishRaj/rpi_telemetry/client/Handlerror"
+	handlerror "github.com/devashishRaj/rpi_telemetry/client/Handlerror"
 	"encoding/json"
 	"log"
 	"net/http"

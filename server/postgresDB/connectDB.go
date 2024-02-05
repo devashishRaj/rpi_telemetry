@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	handle "devashishRaj/rpi_telemetry/server/handleError"
+	handle "github.com/devashishRaj/rpi_telemetry/server/handleError"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
